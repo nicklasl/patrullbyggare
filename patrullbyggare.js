@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 
 // --- 1. Generera Test-CSV ---
 function generateTestData(filePath) {
@@ -18,19 +17,20 @@ function generateTestData(filePath) {
         "Elin",               // Inga önskemål
         "Filip,Karin",
         "Sofia,Lukas",
-        "Hugo,Sven"
+        "Hugo,Sven",
+        "Viktor",             // Inga önskemål
+        "Alma,Viktor"
     ];
 
     fs.writeFileSync(filePath, testData.join('\n'), 'utf-8');
     console.log(`Test-CSV skapad: ${filePath}\n`);
 }
 
-// --- 2. Läs och Parsa CSV ---
+// --- 2. Parsa CSV ---
 function parseCSV(filePath) {
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
-    
-    const scouter = new Map(); // namn -> Array av önskemål
+    const scouter = new Map();
 
     lines.forEach(line => {
         const parts = line.split(',').map(p => p.trim());
@@ -42,7 +42,7 @@ function parseCSV(filePath) {
     return scouter;
 }
 
-// --- 3. Skapa Kluster av Önskemål ---
+// --- 3. Skapa Kluster (Kompisgrupper) ---
 function createClusters(scouter) {
     const visited = new Set();
     const clusters = [];
@@ -58,7 +58,6 @@ function createClusters(scouter) {
                     visited.add(current);
                     cluster.add(current);
 
-                    // Lägg till alla hen önskar + alla som önskat hen
                     const outgoing = scouter.get(current) || [];
                     const incoming = [];
                     scouter.forEach((otherPrefs, otherScout) => {
@@ -79,52 +78,94 @@ function createClusters(scouter) {
     return clusters;
 }
 
-// --- 4. Fördela Kluster till Patruller ---
-function buildPatrols(scouter, maxPerPatrol) {
+// --- 4. Fördela & Balansera Patruller (med +-1 varians) ---
+function buildPatrols(scouter, targetSize) {
+    const minSize = Math.max(2, targetSize - 1);
+    const maxSize = targetSize + 1;
+
     const clusters = createClusters(scouter);
-    
-    // Sortera klustren från största till minsta
     clusters.sort((a, b) => b.length - a.length);
 
-    const patrolList = [];
+    let patrolList = [];
 
+    // Fyll patruller med klustren
     clusters.forEach(cluster => {
         let placed = false;
 
-        // Försök placera hela klustret i en befintlig patrull som har plats
+        // Försök placera klustret i en existerande patrull som inte överskrider maxSize
         for (const patrol of patrolList) {
-            if (patrol.length + cluster.length <= maxPerPatrol) {
+            if (patrol.length + cluster.length <= maxSize) {
                 patrol.push(...cluster);
                 placed = true;
                 break;
             }
         }
 
-        // Om klustret ryms i en egen patrull (eller om det är för stort)
         if (!placed) {
-            if (cluster.length <= maxPerPatrol) {
+            if (cluster.length <= maxSize) {
                 patrolList.push([...cluster]);
             } else {
-                // Klustret är större än maxPerPatrol: Dela upp det så att par/vänner hålls ihop
+                // Stora kluster delas upp i bitar om targetSize
                 let remaining = [...cluster];
                 while (remaining.length > 0) {
-                    const chunk = remaining.splice(0, maxPerPatrol);
+                    const chunk = remaining.splice(0, targetSize);
                     patrolList.push(chunk);
                 }
             }
         }
     });
 
+    // --- EFTERBEARBETNING: Åtgärda för små patruller (< minSize) ---
+    let smallPatrols = patrolList.filter(p => p.length < minSize);
+    patrolList = patrolList.filter(p => p.length >= minSize);
+
+    smallPatrols.forEach(smallPatrol => {
+        smallPatrol.forEach(scout => {
+            const prefs = scouter.get(scout) || [];
+            let placed = false;
+
+            // 1. Försök prioritera patruller där scoutens vänner redan finns
+            for (const patrol of patrolList) {
+                const hasFriend = prefs.some(f => patrol.includes(f));
+                if (hasFriend && patrol.length < maxSize) {
+                    patrol.push(scout);
+                    placed = true;
+                    break;
+                }
+            }
+
+            // 2. Om ingen vän hittades, lägg till i den minsta patrullen som har plats
+            if (!placed) {
+                patrolList.sort((a, b) => a.length - b.length);
+                for (const patrol of patrolList) {
+                    if (patrol.length < maxSize) {
+                        patrol.push(scout);
+                        placed = true;
+                        break;
+                    }
+                }
+            }
+
+            // 3. Om alla patruller är fulla (maxSize), tvingas vi skapa en ny eller överfylla den minsta
+            if (!placed) {
+                patrolList.sort((a, b) => a.length - b.length);
+                patrolList[0].push(scout);
+            }
+        });
+    });
+
     return patrolList;
 }
 
-// --- 5. Utvärdering & CSV-Export ---
-function exportAndReport(patrols, scouter, outputCsvPath) {
+// --- 5. Export & Rapport ---
+function exportAndReport(patrols, scouter, outputCsvPath, targetSize) {
     const csvRows = ["Patrull,Scout,Har Önskad Kamrat i Patrull"];
     let satisfiedCount = 0;
     let totalWithPreferences = 0;
+    const minSize = Math.max(2, targetSize - 1);
+    const maxSize = targetSize + 1;
 
-    console.log("=== RESULTERANDE PATRULLER ===\n");
+    console.log(`=== RESULTERANDE PATRULLER (Mål: ${targetSize}, Tillåtet intervall: ${minSize}–${maxSize}) ===\n`);
 
     patrols.forEach((patrol, index) => {
         const patrolName = `Patrull ${index + 1}`;
@@ -165,16 +206,13 @@ function main() {
     const targetSize = parseInt(args[1], 10) || 5;
     const outputFile = 'patruller_resultat.csv';
 
-    // Skapa testdata om filen inte finns
     if (!fs.existsSync(inputFile)) {
         generateTestData(inputFile);
     }
 
-    console.log(`Läser in ${inputFile} med målstorlek ${targetSize} scouter per patrull...\n`);
-
     const scouter = parseCSV(inputFile);
     const patrols = buildPatrols(scouter, targetSize);
-    exportAndReport(patrols, scouter, outputFile);
+    exportAndReport(patrols, scouter, outputFile, targetSize);
 }
 
 main();
