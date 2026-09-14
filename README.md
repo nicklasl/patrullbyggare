@@ -42,6 +42,25 @@ Verktyget visar rad och kolumn för okända eller dubblerade namn, självönskem
 dubblerade önskemål. När ett okänt namn liknar en scout i filen föreslås den
 troligaste rättstavningen.
 
+### Kör från GitHub
+
+1. Exportera Google-arket som CSV.
+2. Base64-koda filen till en enda rad:
+
+   ```bash
+   base64 < mina_scouter.csv | tr -d '\n'
+   ```
+
+3. Öppna **Actions → Vet CSV → Run workflow**, klistra in Base64-strängen och
+   kör valideringen.
+4. Rätta eventuella problem lokalt och Base64-koda filen igen.
+5. Öppna **Actions → Build Patrols → Run workflow**, klistra in den nya strängen,
+   ange önskad patrullstorlek och kör.
+
+Byggstegets logg visar hela patrullindelningen. Resultatfilen
+`patruller_resultat.csv` visas i körningens sammanfattning och kan laddas ned som
+en fil i 24 timmar. Indatafilen laddas inte upp som en artefakt.
+
 ### 1. Generera testdata (frivilligt)
 
 Om du inte har en egen CSV-fil kan du skapa en testfil med genererade namn och kamratönskemål:

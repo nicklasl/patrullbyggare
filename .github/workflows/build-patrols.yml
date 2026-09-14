@@ -1,0 +1,74 @@
+name: Build Patrols
+run-name: Build Patrols (target ${{ inputs.target_size }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_base64:
+        description: Base64-encoded, validated scout CSV
+        required: true
+        type: string
+      target_size:
+        description: Desired number of scouts per patrol
+        required: true
+        default: '5'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-patrols:
+    name: Build Patrols
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Prepare CSV
+        id: input
+        uses: ./.github/actions/prepare-csv
+        with:
+          csv-base64: ${{ inputs.csv_base64 }}
+
+      - name: Vet CSV
+        env:
+          CSV_PATH: ${{ steps.input.outputs.csv-path }}
+        run: npm run lint:csv -- "$CSV_PATH"
+
+      - name: Build patrols
+        shell: bash
+        env:
+          CSV_PATH: ${{ steps.input.outputs.csv-path }}
+          TARGET_SIZE: ${{ inputs.target_size }}
+        run: node patrullbyggare.js "$CSV_PATH" "$TARGET_SIZE" 2>&1 | tee "$RUNNER_TEMP/patrullbyggare.log"
+
+      - name: Upload result CSV
+        id: result
+        uses: actions/upload-artifact@v7
+        with:
+          path: patruller_resultat.csv
+          archive: false
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Summarize result
+        shell: bash
+        env:
+          ARTIFACT_URL: ${{ steps.result.outputs.artifact-url }}
+        run: |
+          {
+            echo "## Patrol result"
+            echo "[Download patruller_resultat.csv]($ARTIFACT_URL)"
+            echo
+            echo "The result is retained for 24 hours."
+            echo
+            echo '<details><summary>CSV preview</summary>'
+            echo
+            echo '```csv'
+            cat patruller_resultat.csv
+            echo '```'
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
