@@ -5,7 +5,7 @@ const namnPool = [
     "Sven", "Anna", "Erik", "Karin", "Olof", "Maja", "Lukas", "Ida",
     "Nils", "Sara", "Johan", "Elin", "Filip", "Sofia", "Hugo", "Viktor",
     "Alma", "Gustav", "Oscar", "Alice", "Ebba", "William", "Leo", "Noah",
-    "Lucas", "Freja", "Liam", "Astrid", "Emil", "Ebba", "Saga", "Alexander"
+    "Lucas", "Freja", "Liam", "Astrid", "Emil", "Linnea", "Saga", "Alexander"
 ];
 
 function generateScoutData(count = 28) {
