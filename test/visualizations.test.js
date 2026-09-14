@@ -2,7 +2,7 @@ const assert = require('assert');
 const {
     createMermaidGraph,
     createSvgGraph,
-} = require('../patrullbyggare');
+} = require('../visualize');
 
 const patrols = [
     ['Alice & Bob', 'Charlie'],
