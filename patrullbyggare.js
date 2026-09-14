@@ -118,7 +118,23 @@ function buildPatrols(scouter, targetSize) {
             // Fallback when every patrol is full
             if (!placed) {
                 patrolList.sort((a, b) => a.length - b.length);
-                patrolList[0].push(scout);
+                const scoutsAvailableForRebalancing = patrolList
+                    .reduce((total, patrol) => total + Math.max(0, patrol.length - minSize), 0);
+
+                if (scoutsAvailableForRebalancing >= minSize - 1) {
+                    const newPatrol = [scout];
+                    patrolList.sort((a, b) => b.length - a.length);
+
+                    for (const patrol of patrolList) {
+                        while (patrol.length > minSize && newPatrol.length < minSize) {
+                            newPatrol.push(patrol.pop());
+                        }
+                    }
+
+                    patrolList.push(newPatrol);
+                } else {
+                    patrolList[0].push(scout);
+                }
             }
         });
     });
