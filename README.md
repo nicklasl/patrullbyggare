@@ -21,7 +21,7 @@ Ett Node.js-program för att automatiskt dela in scouter i patruller baserat på
 
 ### Tester
 
-Kör syntaxkontroll och alla automatiska tester med:
+Kör lintning, syntaxkontroll och alla automatiska tester med:
 
 ```bash
 npm run ci
