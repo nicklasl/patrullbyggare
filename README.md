@@ -19,6 +19,16 @@ Ett Node.js-program för att automatiskt dela in scouter i patruller baserat på
 
 ## Installation & Användning
 
+### Tester
+
+Kör syntaxkontroll och alla automatiska tester med:
+
+```bash
+npm run ci
+```
+
+Testerna körs automatiskt för pull requests och för uppdateringar av `main`.
+
 ### 1. Generera testdata (frivilligt)
 
 Om du inte har en egen CSV-fil kan du skapa en testfil med genererade namn och kamratönskemål:

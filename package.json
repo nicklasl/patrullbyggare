@@ -1,0 +1,13 @@
+{
+  "name": "patrullbyggare",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node test/check-syntax.js",
+    "test": "node test/run-tests.js",
+    "ci": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=12"
+  }
+}
