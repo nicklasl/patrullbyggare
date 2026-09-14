@@ -122,10 +122,15 @@ Programmet skriver ut patrullfördelning och statistik direkt i terminalen samt 
 
 ## Algoritm & Logik
 
-1. **Grafklustring (Connected Components):** Programmet analyserar utgående och ingående önskemål för att hitta naturliga "kompisgrupper".
-2. **Patrullbyggnad med intervall ($\pm 1$):**
-   - Angiven patrullstorlek ses som en *riktlinje*. Om du anger t.ex. **5** tillåts patrullstorlekar på **4 till 6** personer.
-   - Klustren sorteras och fördelas så att kompisgrupper hålls ihop i största möjliga utsträckning.
-3. **Efterbearbetning för små patruller:**
-   - Alla patruller som hamnar under minsta tillåtna storlek (t.ex. $< 4$) upplöses.
-   - Medlemmarna omfördelas med prioritet till patruller där deras önskade vänner finns, alternativt till de minsta patrullerna med ledig plats.
+1. **Balanserade patrullstorlekar:** Angiven patrullstorlek ses som en
+   *riktlinje*. Om du anger exempelvis **5** tillåts patrullstorlekar på **4 till
+   6** personer, och programmet väljer så jämna storlekar som möjligt.
+2. **Kandidater:** Programmet skapar flera deterministiska startfördelningar från
+   filordningen, kompisgrupper och blandade ordningar.
+3. **Preferensoptimering:** Scouter byter patrull när bytet ökar antalet scouter
+   som får minst en önskad kamrat. Om två fördelningar hjälper lika många används
+   det totala antalet uppfyllda önskemål som utslagsgivare.
+
+Optimeringen är en heuristik och garanterar därför inte den matematiskt bästa
+fördelningen, men undviker att stora sammanhängande kompisgrupper delas enbart
+efter grafens traverseringsordning.

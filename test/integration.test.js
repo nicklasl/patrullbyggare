@@ -122,7 +122,7 @@ test('byggaren bevarar fristående scouter inom storleksintervallet', () => {
         run(builderScript, [input, '5'], directory);
         const records = readPatrolResult(path.join(directory, 'patruller_resultat.csv'));
         assertUniqueScouts(records, scouts);
-        assert.deepStrictEqual(Array.from(patrolSizes(records).values()).sort(), [4, 6]);
+        assert.deepStrictEqual(Array.from(patrolSizes(records).values()).sort(), [5, 5]);
     });
 });
 

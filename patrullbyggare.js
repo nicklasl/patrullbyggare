@@ -50,96 +50,135 @@ function createClusters(scouter) {
     return clusters;
 }
 
-function buildPatrols(scouter, targetSize) {
+function getPatrolSizes(scoutCount, targetSize) {
     const minSize = Math.max(2, targetSize - 1);
     const maxSize = targetSize + 1;
+    const minPatrolCount = Math.ceil(scoutCount / maxSize);
+    const maxPatrolCount = Math.floor(scoutCount / minSize);
+    const preferredPatrolCount = Math.max(1, Math.round(scoutCount / targetSize));
+    const patrolCount = minPatrolCount <= maxPatrolCount
+        ? Math.max(minPatrolCount, Math.min(preferredPatrolCount, maxPatrolCount))
+        : preferredPatrolCount;
+    const baseSize = Math.floor(scoutCount / patrolCount);
+    const largerPatrolCount = scoutCount % patrolCount;
 
-    const clusters = createClusters(scouter);
-    clusters.sort((a, b) => b.length - a.length);
+    return Array.from(
+        { length: patrolCount },
+        (_, index) => baseSize + (index < largerPatrolCount ? 1 : 0)
+    );
+}
 
-    let patrolList = [];
-
-    // Fill patrols with the clusters
-    clusters.forEach(cluster => {
-        let placed = false;
-
-        for (const patrol of patrolList) {
-            if (patrol.length + cluster.length <= maxSize) {
-                patrol.push(...cluster);
-                placed = true;
-                break;
-            }
-        }
-
-        if (!placed) {
-            if (cluster.length <= maxSize) {
-                patrolList.push([...cluster]);
-            } else {
-                let remaining = [...cluster];
-                while (remaining.length > 0) {
-                    const chunk = remaining.splice(0, targetSize);
-                    patrolList.push(chunk);
-                }
-            }
-        }
+function createPatrolsFromOrder(scouts, patrolSizes) {
+    let start = 0;
+    return patrolSizes.map(size => {
+        const patrol = scouts.slice(start, start + size);
+        start += size;
+        return patrol;
     });
+}
 
-    // Post-processing: Handle undersized patrols (< minSize)
-    let smallPatrols = patrolList.filter(p => p.length < minSize);
-    patrolList = patrolList.filter(p => p.length >= minSize);
+function scorePatrols(patrols, scouter) {
+    let satisfiedScouts = 0;
+    let matchedPreferences = 0;
 
-    smallPatrols.forEach(smallPatrol => {
-        smallPatrol.forEach(scout => {
-            const prefs = scouter.get(scout) || [];
-            let placed = false;
-
-            // Prioritize a patrol with room and a known friend
-            for (const patrol of patrolList) {
-                const hasFriend = prefs.some(f => patrol.includes(f));
-                if (hasFriend && patrol.length < maxSize) {
-                    patrol.push(scout);
-                    placed = true;
-                    break;
-                }
-            }
-
-            // Otherwise, place the scout in the smallest patrol with room
-            if (!placed) {
-                patrolList.sort((a, b) => a.length - b.length);
-                for (const patrol of patrolList) {
-                    if (patrol.length < maxSize) {
-                        patrol.push(scout);
-                        placed = true;
-                        break;
-                    }
-                }
-            }
-
-            // Fallback when every patrol is full
-            if (!placed) {
-                patrolList.sort((a, b) => a.length - b.length);
-                const scoutsAvailableForRebalancing = patrolList
-                    .reduce((total, patrol) => total + Math.max(0, patrol.length - minSize), 0);
-
-                if (scoutsAvailableForRebalancing >= minSize - 1) {
-                    const newPatrol = [scout];
-                    patrolList.sort((a, b) => b.length - a.length);
-
-                    for (const patrol of patrolList) {
-                        while (patrol.length > minSize && newPatrol.length < minSize) {
-                            newPatrol.push(patrol.pop());
-                        }
-                    }
-
-                    patrolList.push(newPatrol);
-                } else {
-                    patrolList[0].push(scout);
-                }
-            }
+    patrols.forEach(patrol => {
+        const patrolMembers = new Set(patrol);
+        patrol.forEach(scout => {
+            const matches = (scouter.get(scout) || [])
+                .filter(friend => patrolMembers.has(friend)).length;
+            if (matches > 0) satisfiedScouts++;
+            matchedPreferences += matches;
         });
     });
 
-    return patrolList;
+    return { satisfiedScouts, matchedPreferences };
+}
+
+function isBetterScore(candidate, current) {
+    return candidate.satisfiedScouts > current.satisfiedScouts
+        || (candidate.satisfiedScouts === current.satisfiedScouts
+            && candidate.matchedPreferences > current.matchedPreferences);
+}
+
+function optimizePatrols(patrols, scouter) {
+    let currentScore = scorePatrols(patrols, scouter);
+
+    while (true) {
+        let bestSwap;
+        let bestScore = currentScore;
+
+        for (let leftPatrol = 0; leftPatrol < patrols.length; leftPatrol++) {
+            for (let rightPatrol = leftPatrol + 1; rightPatrol < patrols.length; rightPatrol++) {
+                for (let leftScout = 0; leftScout < patrols[leftPatrol].length; leftScout++) {
+                    for (let rightScout = 0; rightScout < patrols[rightPatrol].length; rightScout++) {
+                        const left = patrols[leftPatrol][leftScout];
+                        const right = patrols[rightPatrol][rightScout];
+                        patrols[leftPatrol][leftScout] = right;
+                        patrols[rightPatrol][rightScout] = left;
+
+                        const candidateScore = scorePatrols(patrols, scouter);
+                        if (isBetterScore(candidateScore, bestScore)) {
+                            bestScore = candidateScore;
+                            bestSwap = { leftPatrol, rightPatrol, leftScout, rightScout };
+                        }
+
+                        patrols[leftPatrol][leftScout] = left;
+                        patrols[rightPatrol][rightScout] = right;
+                    }
+                }
+            }
+        }
+
+        if (!bestSwap) return patrols;
+
+        const left = patrols[bestSwap.leftPatrol][bestSwap.leftScout];
+        patrols[bestSwap.leftPatrol][bestSwap.leftScout]
+            = patrols[bestSwap.rightPatrol][bestSwap.rightScout];
+        patrols[bestSwap.rightPatrol][bestSwap.rightScout] = left;
+        currentScore = bestScore;
+    }
+}
+
+function shuffledScouts(scouts, seed) {
+    const shuffled = [...scouts];
+    let state = seed;
+
+    for (let index = shuffled.length - 1; index > 0; index--) {
+        state = (state * 1664525 + 1013904223) >>> 0;
+        const swapIndex = state % (index + 1);
+        [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+
+    return shuffled;
+}
+
+function buildPatrols(scouter, targetSize) {
+    const scouts = Array.from(scouter.keys());
+    const patrolSizes = getPatrolSizes(scouts.length, targetSize);
+    const clusteredScouts = createClusters(scouter)
+        .sort((left, right) => right.length - left.length)
+        .flat();
+    const startingOrders = [scouts, clusteredScouts, [...scouts].reverse()];
+    const shuffledOrderCount = Math.min(20, Math.max(4, scouts.length));
+
+    for (let seed = 1; seed <= shuffledOrderCount; seed++) {
+        startingOrders.push(shuffledScouts(scouts, seed));
+    }
+
+    let bestPatrols;
+    let bestScore;
+
+    startingOrders.forEach(order => {
+        const patrols = optimizePatrols(createPatrolsFromOrder(order, patrolSizes), scouter);
+        const score = scorePatrols(patrols, scouter);
+
+        if (!bestScore || isBetterScore(score, bestScore)) {
+            bestPatrols = patrols;
+            bestScore = score;
+        }
+    });
+
+    return bestPatrols;
 }
 
 function exportAndReport(patrols, scouter, outputCsvPath, targetSize) {
@@ -245,4 +284,6 @@ function main() {
     exportAndReport(patrols, scouter, outputFile, targetSize);
 }
 
-main();
+if (require.main === module) main();
+
+module.exports = { buildPatrols, getPatrolSizes, scorePatrols };
