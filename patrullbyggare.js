@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { exportVisualizations } = require('./visualize');
 
 function parseCSV(filePath) {
     const content = fs.readFileSync(filePath, 'utf-8');
@@ -269,6 +270,8 @@ function main() {
     }
 
     const outputFile = 'patruller_resultat.csv';
+    const mermaidFile = 'patruller_resultat.mmd';
+    const svgFile = 'patruller_resultat.svg';
 
     const scouter = parseCSV(inputFile);
 
@@ -282,8 +285,14 @@ function main() {
 
     const patrols = buildPatrols(scouter, targetSize);
     exportAndReport(patrols, scouter, outputFile, targetSize);
+    exportVisualizations(patrols, scouter, mermaidFile, svgFile);
+    console.log(`Visualiseringar har sparats till: ${mermaidFile} och ${svgFile}`);
 }
 
 if (require.main === module) main();
 
-module.exports = { buildPatrols, getPatrolSizes, scorePatrols };
+module.exports = {
+    buildPatrols,
+    getPatrolSizes,
+    scorePatrols,
+};

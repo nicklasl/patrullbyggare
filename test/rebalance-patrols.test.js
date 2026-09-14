@@ -32,4 +32,6 @@ assert.deepStrictEqual([...patrolSizes.values()].sort((a, b) => a - b), [4, 4, 5
 
 fs.unlinkSync(inputPath);
 fs.unlinkSync(path.join(workingDirectory, 'patruller_resultat.csv'));
+fs.unlinkSync(path.join(workingDirectory, 'patruller_resultat.mmd'));
+fs.unlinkSync(path.join(workingDirectory, 'patruller_resultat.svg'));
 fs.rmdirSync(workingDirectory);

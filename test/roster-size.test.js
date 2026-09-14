@@ -18,9 +18,8 @@ function runWithRoster(scouts, targetSize) {
             timeout: 1000,
         });
     } finally {
-        const output = path.join(directory, 'patruller_resultat.csv');
         fs.unlinkSync(input);
-        if (fs.existsSync(output)) fs.unlinkSync(output);
+        fs.readdirSync(directory).forEach(file => fs.unlinkSync(path.join(directory, file)));
         fs.rmdirSync(directory);
     }
 }

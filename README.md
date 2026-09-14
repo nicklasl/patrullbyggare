@@ -57,9 +57,9 @@ troligaste rättstavningen.
 5. Öppna **Actions → Build Patrols → Run workflow**, klistra in den nya strängen,
    ange önskad patrullstorlek och kör.
 
-Byggstegets logg visar hela patrullindelningen. Resultatfilen
-`patruller_resultat.csv` visas i körningens sammanfattning och kan laddas ned som
-en fil i 24 timmar. Indatafilen laddas inte upp som en artefakt.
+Byggstegets logg visar hela patrullindelningen. Resultatfilerna kan laddas ned
+från körningens sammanfattning i 24 timmar: CSV-resultatet, ett redigerbart
+Mermaid-diagram och en färdig SVG. Indatafilen laddas inte upp som en artefakt.
 
 ### 1. Generera testdata (frivilligt)
 
@@ -108,8 +108,19 @@ Johan
 ```
 *   **Observera:** Scouter utan önskemål anges med enbart sitt namn (t.ex. `Johan`).
 
-### Utdata (`patruller_resultat.csv` & konsol)
-Programmet skriver ut patrullfördelning och statistik direkt i terminalen samt sparar resultatfilen `patruller_resultat.csv`:
+### Utdata
+
+Programmet skriver ut patrullfördelning och statistik direkt i terminalen och
+skapar tre resultatfiler:
+
+- `patruller_resultat.csv`: patrullfördelningen
+- `patruller_resultat.mmd`: Mermaid-diagrammets källkod
+- `patruller_resultat.svg`: ett fristående diagram som kan öppnas i en webbläsare
+
+Gröna heldragna pilar visar uppfyllda önskemål. Röda streckade pilar visar
+önskemål till scouter i en annan patrull.
+
+CSV-filen ser ut så här:
 ```csv
 "Patrull","Scout","Har Önskad Kamrat i Patrull"
 "Patrull 1","Sven","JA"
