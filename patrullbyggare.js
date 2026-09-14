@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-// --- 2. Parse CSV ---
 function parseCSV(filePath) {
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
@@ -16,7 +15,6 @@ function parseCSV(filePath) {
     return scouter;
 }
 
-// --- 3. Create Clusters (Friend Groups) ---
 function createClusters(scouter) {
     const visited = new Set();
     const clusters = [];
@@ -52,7 +50,6 @@ function createClusters(scouter) {
     return clusters;
 }
 
-// --- 4. Distribute and Balance Patrols (with ±1 variance) ---
 function buildPatrols(scouter, targetSize) {
     const minSize = Math.max(2, targetSize - 1);
     const maxSize = targetSize + 1;
@@ -129,7 +126,6 @@ function buildPatrols(scouter, targetSize) {
     return patrolList;
 }
 
-// --- 5. Export and Report ---
 function exportAndReport(patrols, scouter, outputCsvPath, targetSize) {
     const csvRows = ["Patrull,Scout,Har Önskad Kamrat i Patrull"];
     let satisfiedCount = 0;
@@ -182,7 +178,6 @@ function parseTargetSize(value) {
     return targetSize;
 }
 
-// --- MAIN PROGRAM ---
 function main() {
     const args = process.argv.slice(2);
     const inputFile = args[0] || 'test_scouter.csv';
