@@ -45,14 +45,29 @@ jobs:
           TARGET_SIZE: ${{ inputs.target_size }}
         run: node patrullbyggare.js "$CSV_PATH" "$TARGET_SIZE" 2>&1 | tee "$RUNNER_TEMP/patrullbyggare.log"
 
-      - name: Upload results
-        id: result
+      - name: Upload result CSV
+        id: result_csv
         uses: actions/upload-artifact@v7
         with:
-          path: |
-            patruller_resultat.csv
-            patruller_resultat.mmd
-            patruller_resultat.svg
+          path: patruller_resultat.csv
+          archive: false
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload Mermaid diagram
+        id: result_mermaid
+        uses: actions/upload-artifact@v7
+        with:
+          path: patruller_resultat.mmd
+          archive: false
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload SVG diagram
+        id: result_svg
+        uses: actions/upload-artifact@v7
+        with:
+          path: patruller_resultat.svg
           archive: false
           if-no-files-found: error
           retention-days: 1
@@ -60,11 +75,15 @@ jobs:
       - name: Summarize result
         shell: bash
         env:
-          ARTIFACT_URL: ${{ steps.result.outputs.artifact-url }}
+          CSV_ARTIFACT_URL: ${{ steps.result_csv.outputs.artifact-url }}
+          MERMAID_ARTIFACT_URL: ${{ steps.result_mermaid.outputs.artifact-url }}
+          SVG_ARTIFACT_URL: ${{ steps.result_svg.outputs.artifact-url }}
         run: |
           {
             echo "## Patrol result"
-            echo "[Download CSV, Mermaid and SVG files]($ARTIFACT_URL)"
+            echo "- [Download CSV]($CSV_ARTIFACT_URL)"
+            echo "- [Download Mermaid diagram]($MERMAID_ARTIFACT_URL)"
+            echo "- [Download SVG diagram]($SVG_ARTIFACT_URL)"
             echo
             echo "The result is retained for 24 hours."
             echo
