@@ -194,6 +194,28 @@ function parseTargetSize(value) {
     return targetSize;
 }
 
+function validateRosterSize(scoutCount, targetSize) {
+    const minSize = Math.max(2, targetSize - 1);
+    if (scoutCount >= minSize) return;
+
+    const suggestedTargetSize = Math.max(2, scoutCount);
+
+    if (scoutCount < 2) {
+        const missingScoutCount = 2 - scoutCount;
+        const scoutLabel = missingScoutCount === 1 ? 'scout' : 'scouter';
+        throw new Error(
+            `Minst 2 scouter krävs för att bygga en patrull. ` +
+            `Lägg till ${missingScoutCount} ${scoutLabel}. ` +
+            `Föreslagen patrullstorlek: ${suggestedTargetSize}.`
+        );
+    }
+
+    throw new Error(
+        `${scoutCount} scouter är för få för patrullstorlek ${targetSize}, ` +
+        `som kräver minst ${minSize}. Föreslagen patrullstorlek: ${suggestedTargetSize}.`
+    );
+}
+
 function main() {
     const args = process.argv.slice(2);
     const inputFile = args[0] || 'test_scouter.csv';
@@ -210,6 +232,15 @@ function main() {
     const outputFile = 'patruller_resultat.csv';
 
     const scouter = parseCSV(inputFile);
+
+    try {
+        validateRosterSize(scouter.size, targetSize);
+    } catch (error) {
+        console.error(`Fel: ${error.message}`);
+        process.exitCode = 1;
+        return;
+    }
+
     const patrols = buildPatrols(scouter, targetSize);
     exportAndReport(patrols, scouter, outputFile, targetSize);
 }
