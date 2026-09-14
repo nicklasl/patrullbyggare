@@ -171,11 +171,31 @@ function exportAndReport(patrols, scouter, outputCsvPath, targetSize) {
     console.log(`\nResultat har sparats till: ${outputCsvPath}`);
 }
 
+function parseTargetSize(value) {
+    if (value === undefined) return 5;
+
+    const targetSize = Number(value);
+    if (!Number.isInteger(targetSize) || targetSize < 2) {
+        throw new Error('Önskad patrullstorlek måste vara ett heltal på minst 2.');
+    }
+
+    return targetSize;
+}
+
 // --- HUVUDPROGRAM ---
 function main() {
     const args = process.argv.slice(2);
     const inputFile = args[0] || 'test_scouter.csv';
-    const targetSize = parseInt(args[1], 10) || 5;
+    let targetSize;
+
+    try {
+        targetSize = parseTargetSize(args[1]);
+    } catch (error) {
+        console.error(`Fel: ${error.message}`);
+        process.exitCode = 1;
+        return;
+    }
+
     const outputFile = 'patruller_resultat.csv';
 
     const scouter = parseCSV(inputFile);
