@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-// --- 2. Parsa CSV ---
 function parseCSV(filePath) {
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
@@ -16,7 +15,6 @@ function parseCSV(filePath) {
     return scouter;
 }
 
-// --- 3. Skapa Kluster (Kompisgrupper) ---
 function createClusters(scouter) {
     const visited = new Set();
     const clusters = [];
@@ -52,7 +50,6 @@ function createClusters(scouter) {
     return clusters;
 }
 
-// --- 4. Fördela & Balansera Patruller (med +-1 varians) ---
 function buildPatrols(scouter, targetSize) {
     const minSize = Math.max(2, targetSize - 1);
     const maxSize = targetSize + 1;
@@ -62,7 +59,7 @@ function buildPatrols(scouter, targetSize) {
 
     let patrolList = [];
 
-    // Fyll patruller med klustren
+    // Fill patrols with the clusters
     clusters.forEach(cluster => {
         let placed = false;
 
@@ -87,7 +84,7 @@ function buildPatrols(scouter, targetSize) {
         }
     });
 
-    // Efterbearbetning: Hantera underdimensionerade patruller (< minSize)
+    // Post-processing: Handle undersized patrols (< minSize)
     let smallPatrols = patrolList.filter(p => p.length < minSize);
     patrolList = patrolList.filter(p => p.length >= minSize);
 
@@ -96,7 +93,7 @@ function buildPatrols(scouter, targetSize) {
             const prefs = scouter.get(scout) || [];
             let placed = false;
 
-            // Prioritera patrull med känd vän som har plats
+            // Prioritize a patrol with room and a known friend
             for (const patrol of patrolList) {
                 const hasFriend = prefs.some(f => patrol.includes(f));
                 if (hasFriend && patrol.length < maxSize) {
@@ -106,7 +103,7 @@ function buildPatrols(scouter, targetSize) {
                 }
             }
 
-            // Annars placera i den minsta patrullen med plats
+            // Otherwise, place the scout in the smallest patrol with room
             if (!placed) {
                 patrolList.sort((a, b) => a.length - b.length);
                 for (const patrol of patrolList) {
@@ -118,7 +115,7 @@ function buildPatrols(scouter, targetSize) {
                 }
             }
 
-            // Reservfall om alla är fulla
+            // Fallback when every patrol is full
             if (!placed) {
                 patrolList.sort((a, b) => a.length - b.length);
                 patrolList[0].push(scout);
@@ -129,7 +126,6 @@ function buildPatrols(scouter, targetSize) {
     return patrolList;
 }
 
-// --- 5. Export & Rapport ---
 function exportAndReport(patrols, scouter, outputCsvPath, targetSize) {
     const csvRows = ["Patrull,Scout,Har Önskad Kamrat i Patrull"];
     let satisfiedCount = 0;
@@ -182,7 +178,6 @@ function parseTargetSize(value) {
     return targetSize;
 }
 
-// --- HUVUDPROGRAM ---
 function main() {
     const args = process.argv.slice(2);
     const inputFile = args[0] || 'test_scouter.csv';

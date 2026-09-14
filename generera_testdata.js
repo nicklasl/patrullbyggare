@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-// Pool av namn för slumpmässig validering
+// Name pool for randomized validation
 const namnPool = [
     "Sven", "Anna", "Erik", "Karin", "Olof", "Maja", "Lukas", "Ida",
     "Nils", "Sara", "Johan", "Elin", "Filip", "Sofia", "Hugo", "Viktor",
@@ -9,19 +9,19 @@ const namnPool = [
 ];
 
 function generateScoutData(count = 28) {
-    // Välj ett unikt set av namn upp till 'count'
+    // Select a unique set of names up to 'count'
     const scouter = namnPool.slice(0, count);
     const rows = [];
 
     scouter.forEach((scout, index) => {
         const preferences = [];
 
-        // Ge ~80% av scouterna 1-3 önskemål, resten får inga
+        // Give ~80% of the scouts 1–3 preferences; the rest get none
         if (Math.random() > 0.2) {
-            // Slumpa 1-3 vänner som inte är scouten själv
+            // Pick 1–3 random friends other than the scout
             const possibleFriends = scouter.filter(s => s !== scout);
             
-            // Prioritera grannar i listan ibland för att skapa kluster/ömsesidighet
+            // Sometimes prioritize list neighbors to create clusters and reciprocity
             if (index > 0 && Math.random() < 0.6) {
                 preferences.push(scouter[index - 1]);
             }
