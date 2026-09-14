@@ -8,6 +8,7 @@ Ett Node.js-program för att automatiskt dela in scouter i patruller baserat på
 
 - **`patrullbyggare.js`**: Huvudprogrammet som läser in scoutdata från en CSV-fil, analyserar kamratrelationer, skapar patruller och exporterar resultatet.
 - **`generera_testdata.js`**: Hjälpskript för att skapa slumpmässig testdata i CSV-format.
+- **`lint_csv.js`**: Validerar scoutdata och föreslår rättstavningar för okända namn.
 
 ---
 
@@ -28,6 +29,18 @@ npm run ci
 ```
 
 Testerna körs automatiskt för pull requests och för uppdateringar av `main`.
+
+### Validera en CSV-fil
+
+Kontrollera filen innan patrullerna byggs:
+
+```bash
+npm run lint:csv -- mina_scouter.csv
+```
+
+Verktyget visar rad och kolumn för okända eller dubblerade namn, självönskemål och
+dubblerade önskemål. När ett okänt namn liknar en scout i filen föreslås den
+troligaste rättstavningen.
 
 ### 1. Generera testdata (frivilligt)
 

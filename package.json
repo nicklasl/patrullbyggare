@@ -5,6 +5,7 @@
   "scripts": {
     "check": "node test/check-syntax.js",
     "lint": "eslint .",
+    "lint:csv": "node lint_csv.js",
     "test": "node test/run-tests.js",
     "ci": "npm run lint && npm run check && npm test"
   },
