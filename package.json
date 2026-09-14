@@ -4,10 +4,16 @@
   "private": true,
   "scripts": {
     "check": "node test/check-syntax.js",
+    "lint": "eslint .",
     "test": "node test/run-tests.js",
-    "ci": "npm run check && npm test"
+    "ci": "npm run lint && npm run check && npm test"
   },
   "engines": {
     "node": ">=12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0"
   }
 }
