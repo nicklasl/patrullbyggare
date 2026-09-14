@@ -110,6 +110,14 @@ test('byggaren hanterar CRLF, blankrader och mellanslag', () => {
         assert.strictEqual(records.find(record => record.scout === 'Sven').status, 'JA');
         assert.strictEqual(records.find(record => record.scout === 'Anna').status, 'JA');
         assert.strictEqual(records.find(record => record.scout === 'Karin').status, 'Inga önskemål');
+        assert.match(
+            fs.readFileSync(path.join(directory, 'patruller_resultat.mmd'), 'utf-8'),
+            /^flowchart LR/
+        );
+        assert.match(
+            fs.readFileSync(path.join(directory, 'patruller_resultat.svg'), 'utf-8'),
+            /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/
+        );
     });
 });
 

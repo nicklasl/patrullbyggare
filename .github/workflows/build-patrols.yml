@@ -45,11 +45,14 @@ jobs:
           TARGET_SIZE: ${{ inputs.target_size }}
         run: node patrullbyggare.js "$CSV_PATH" "$TARGET_SIZE" 2>&1 | tee "$RUNNER_TEMP/patrullbyggare.log"
 
-      - name: Upload result CSV
+      - name: Upload results
         id: result
         uses: actions/upload-artifact@v7
         with:
-          path: patruller_resultat.csv
+          path: |
+            patruller_resultat.csv
+            patruller_resultat.mmd
+            patruller_resultat.svg
           archive: false
           if-no-files-found: error
           retention-days: 1
@@ -61,7 +64,7 @@ jobs:
         run: |
           {
             echo "## Patrol result"
-            echo "[Download patruller_resultat.csv]($ARTIFACT_URL)"
+            echo "[Download CSV, Mermaid and SVG files]($ARTIFACT_URL)"
             echo
             echo "The result is retained for 24 hours."
             echo
