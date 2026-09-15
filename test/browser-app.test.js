@@ -14,6 +14,14 @@ assert.match(html, /type="file" accept="\.csv,text\/csv"/);
 assert.match(html, /<textarea[\s\S]+id="csv-text"/);
 assert.match(html, /connect-src 'none'/);
 assert.match(html, /Ingen scoutdata skickas eller sparas/);
+assert.match(html, /Scouterna skriver varsin lapp/);
+assert.match(html, /stryka under det/);
+assert.match(html, /scoutens eget namn i kolumn A/);
+assert.match(html, /Börja direkt på rad 1 utan rubrikrad/);
+assert.match(html, /Google Kalkylark/);
+assert.match(html, /Excel/);
+assert.match(html, /CSV UTF-8/);
+assert.match(html, /Steg 4/);
 
 assert.match(app, /addEventListener\('drop'/);
 assert.match(app, /PatrullbyggareCsvLint/);
