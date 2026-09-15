@@ -137,6 +137,11 @@ main {
     box-shadow: var(--shadow);
 }
 
+.input-panel,
+.results {
+    margin-top: 1.5rem;
+}
+
 .section-heading {
     display: flex;
     gap: 1.5rem;
@@ -145,9 +150,176 @@ main {
     margin-bottom: 2rem;
 }
 
-.format-link {
+.workflow-lead {
+    max-width: 48rem;
+    margin: 0 0 2rem;
+    color: var(--muted);
+    font-size: 1.05rem;
+}
+
+.workflow-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+}
+
+.workflow-summary::-webkit-details-marker {
+    display: none;
+}
+
+.workflow-summary::after {
+    flex: none;
+    margin-left: 1rem;
     color: var(--forest-700);
+    content: "Visa guide +";
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.workflow-guide[open] .workflow-summary::after {
+    content: "Dölj guide −";
+}
+
+.workflow-content {
+    margin-top: 2rem;
+}
+
+.workflow-steps {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    list-style: none;
+}
+
+.workflow-card {
+    position: relative;
+    min-width: 0;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    background: #fbfcf8;
+}
+
+.workflow-card h3 {
+    margin: 0 0 0.7rem;
+    padding-right: 2rem;
+    color: var(--forest-950);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.workflow-card p {
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.workflow-number {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: grid;
+    width: 1.8rem;
+    height: 1.8rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--forest-100);
+    color: var(--forest-800);
+    font-size: 0.8rem;
+    font-weight: 850;
+}
+
+.paper-note {
+    display: flex;
+    width: 9rem;
+    min-height: 7.5rem;
+    flex-direction: column;
+    gap: 0.25rem;
+    justify-content: center;
+    margin: 1rem auto 0;
+    padding: 1rem 1.3rem;
+    transform: rotate(-2deg);
+    background: #fff7bb;
+    box-shadow: 0 5px 14px rgb(23 53 42 / 12%);
+    color: #3e4037;
+    font-family: "Comic Sans MS", "Bradley Hand", cursive;
+}
+
+.paper-note .own-name {
+    margin-bottom: 0.2rem;
     font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+.workflow-card .workflow-tip {
+    margin-bottom: 0.8rem;
+    padding-left: 0.7rem;
+    border-left: 3px solid var(--orange);
+    color: var(--ink);
+    font-size: 0.84rem;
+}
+
+.sheet-example {
+    display: grid;
+    overflow: hidden;
+    border: 1px solid #c7cec8;
+    border-radius: 0.45rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    background: white;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+}
+
+.sheet-example div {
+    min-height: 1.7rem;
+    overflow: hidden;
+    padding: 0.3rem 0.4rem;
+    border-right: 1px solid #d9dfda;
+    border-bottom: 1px solid #d9dfda;
+    text-overflow: ellipsis;
+}
+
+.sheet-example div:nth-child(3n) {
+    border-right: 0;
+}
+
+.sheet-example div:nth-last-child(-n + 3) {
+    border-bottom: 0;
+}
+
+.sheet-example .sheet-column {
+    min-height: auto;
+    background: #e8ede9;
+    color: var(--forest-800);
+    font-weight: 800;
+    text-align: center;
+}
+
+.export-list {
+    margin: 0 0 1rem;
+    padding-left: 1.2rem;
+    color: var(--muted);
+    font-size: 0.84rem;
+}
+
+.export-list li + li {
+    margin-top: 0.45rem;
+}
+
+.format-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--forest-700);
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: underline;
 }
 
 .tabs {
@@ -313,10 +485,6 @@ input[type="number"] {
     padding-left: 1.3rem;
 }
 
-.results {
-    margin-top: 1.5rem;
-}
-
 .download-menu {
     display: flex;
     flex-wrap: wrap;
@@ -408,6 +576,28 @@ input[type="number"] {
     color: var(--red);
 }
 
+.status-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1.25rem;
+    margin: -0.75rem 0 1.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: 0.75rem;
+    background: #f1f4ef;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.status-legend > div {
+    display: flex;
+    gap: 0.45rem;
+    align-items: baseline;
+}
+
+.status-legend .status {
+    flex: none;
+}
+
 .visualization {
     margin-top: 2rem;
     border-top: 1px solid var(--line);
@@ -429,11 +619,49 @@ input[type="number"] {
     background: white;
 }
 
-.format-help {
-    padding: 4rem 0 1rem;
+.format-dialog {
+    width: min(90vw, 38rem);
+    padding: 1.5rem;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 24px 80px rgb(0 0 0 / 28%);
 }
 
-.format-help pre {
+.format-dialog::backdrop {
+    background: rgb(23 53 42 / 72%);
+}
+
+.dialog-heading {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.close-button {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--forest-100);
+    color: var(--forest-800);
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.format-dialog > p {
+    color: var(--muted);
+}
+
+.format-dialog pre {
     overflow-x: auto;
     margin-top: 1.5rem;
     padding: 1.25rem;
@@ -480,6 +708,10 @@ footer {
     }
 
     .statistics {
+        grid-template-columns: 1fr;
+    }
+
+    .workflow-steps {
         grid-template-columns: 1fr;
     }
 

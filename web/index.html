@@ -35,13 +35,90 @@
     </header>
 
     <main>
-        <section class="panel input-panel" aria-labelledby="input-heading">
+        <details class="panel workflow-guide">
+            <summary class="workflow-summary">
+                <div>
+                    <p class="step">Från önskemål till patruller</p>
+                    <h2 id="workflow-heading">Så går det till</h2>
+                </div>
+            </summary>
+            <div class="workflow-content">
+                <p class="workflow-lead">
+                    Samla först in önskemålen på papper och för sedan över dem till ett
+                    kalkylark. När arket sparats som CSV är det redo för Patrullbyggaren.
+                </p>
+
+                <ol class="workflow-steps">
+                <li class="workflow-card">
+                    <span class="workflow-number" aria-hidden="true">1</span>
+                    <h3>Scouterna skriver varsin lapp</h3>
+                    <p>
+                        Be varje scout skriva sitt eget namn och <strong>stryka under det</strong>.
+                        Under namnet skriver scouten sina kompisönskemål.
+                    </p>
+                    <div class="paper-note" aria-label="Exempel på en scoutlapp">
+                        <span class="own-name">Alex</span>
+                        <span>Sam</span>
+                        <span>Kim</span>
+                    </div>
+                </li>
+
+                <li class="workflow-card">
+                    <span class="workflow-number" aria-hidden="true">2</span>
+                    <h3>För över lapparna till ett kalkylark</h3>
+                    <p>
+                        Använd Google Kalkylark eller Excel. Skriv en scout per rad:
+                        scoutens eget namn i kolumn A och ett önskemål per cell i kolumn
+                        B, C och så vidare.
+                    </p>
+                    <p class="workflow-tip">
+                        Börja direkt på rad 1 utan rubrikrad. Använd samma stavning varje
+                        gång ett namn förekommer.
+                    </p>
+                    <div class="sheet-example" aria-label="Exempel på kalkylark utan rubrikrad">
+                        <div class="sheet-column" aria-hidden="true">A</div>
+                        <div class="sheet-column" aria-hidden="true">B</div>
+                        <div class="sheet-column" aria-hidden="true">C</div>
+                        <div>Alex</div><div>Sam</div><div>Kim</div>
+                        <div>Sam</div><div>Alex</div><div></div>
+                        <div>Kim</div><div>Alex</div><div></div>
+                    </div>
+                </li>
+
+                <li class="workflow-card">
+                    <span class="workflow-number" aria-hidden="true">3</span>
+                    <h3>Exportera arket som CSV</h3>
+                    <p>
+                        Ladda ned det aktiva bladet som en kommaseparerad CSV-fil. I Excel,
+                        välj gärna <strong>CSV UTF-8</strong> så att svenska tecken bevaras.
+                    </p>
+                    <ul class="export-list">
+                        <li><strong>Google Kalkylark:</strong> Ladda ned som kommaseparerade värden (.csv).</li>
+                        <li><strong>Excel:</strong> Spara som CSV UTF-8, kommaavgränsad (.csv).</li>
+                    </ul>
+                    <p class="workflow-tip">
+                        Kontrollera att filnamnet slutar på <code>.csv</code>. Sedan kan filen
+                        laddas upp nedan — eller öppnas och klistras in som text.
+                    </p>
+                </li>
+                </ol>
+            </div>
+        </details>
+
+        <section id="builder" class="panel input-panel" aria-labelledby="input-heading">
             <div class="section-heading">
                 <div>
-                    <p class="step">Steg 1</p>
-                    <h2 id="input-heading">Lägg till scoutlistan</h2>
+                    <p class="step">Steg 4</p>
+                    <h2 id="input-heading">Lägg in CSV-filen</h2>
                 </div>
-                <a class="format-link" href="#csv-format">Visa CSV-format</a>
+                <button
+                    id="show-csv-format"
+                    class="format-link"
+                    type="button"
+                    aria-haspopup="dialog"
+                >
+                    Visa CSV-format
+                </button>
             </div>
 
             <div class="tabs" role="tablist" aria-label="Välj hur CSV-data ska läggas till">
@@ -117,26 +194,40 @@
             </div>
 
             <dl class="statistics" id="statistics"></dl>
+            <div class="status-legend" aria-label="Förklaring av status i patrullerna">
+                <div><span class="status status--yes">JA</span> Minst ett kompisönskemål finns i samma patrull.</div>
+                <div><span class="status status--no">NEJ</span> Inget kompisönskemål finns i samma patrull.</div>
+                <div><span class="status">Inga önskemål</span> Scouten lämnade inga kompisönskemål.</div>
+            </div>
             <div class="patrol-grid" id="patrol-grid"></div>
 
-            <details class="visualization">
-                <summary>Visa relationsdiagram</summary>
+            <details class="visualization" open>
+                <summary>Relationsdiagram</summary>
                 <img id="result-graph" alt="Diagram över patruller och kamratönskemål">
             </details>
         </section>
+    </main>
 
-        <section id="csv-format" class="format-help" aria-labelledby="format-heading">
-            <p class="step">CSV-format</p>
-            <h2 id="format-heading">Ett namn per rad, följt av önskemål</h2>
-            <pre><code>Sven,Anna,Erik
+    <dialog id="csv-format-dialog" class="format-dialog" aria-labelledby="format-heading">
+        <div class="dialog-heading">
+            <div>
+                <p class="step">CSV-format</p>
+                <h2 id="format-heading">Ett namn per rad, följt av önskemål</h2>
+            </div>
+            <button id="close-csv-format" class="close-button" type="button" aria-label="Stäng">×</button>
+        </div>
+        <p>
+            Börja direkt med den första scouten, utan rubrikrad. Kolumn A innehåller
+            scoutens namn och följande kolumner innehåller kompisönskemålen.
+        </p>
+        <pre><code>Sven,Anna,Erik
 Anna,Sven,Erik
 Karin,Olof
 Johan</code></pre>
-        </section>
-    </main>
+    </dialog>
 
     <footer>
-        Patrullbyggaren körs helt lokalt — som en lägereld utan moln.
+        Patrullbyggaren körs helt lokalt - som en lägereld utan rök.
     </footer>
 </body>
 </html>
