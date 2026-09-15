@@ -152,9 +152,38 @@ main {
 
 .workflow-lead {
     max-width: 48rem;
-    margin: -0.75rem 0 2rem;
+    margin: 0 0 2rem;
     color: var(--muted);
     font-size: 1.05rem;
+}
+
+.workflow-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+}
+
+.workflow-summary::-webkit-details-marker {
+    display: none;
+}
+
+.workflow-summary::after {
+    flex: none;
+    margin-left: 1rem;
+    color: var(--forest-700);
+    content: "Visa guide +";
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.workflow-guide[open] .workflow-summary::after {
+    content: "Dölj guide −";
+}
+
+.workflow-content {
+    margin-top: 2rem;
 }
 
 .workflow-steps {

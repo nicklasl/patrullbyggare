@@ -35,19 +35,20 @@
     </header>
 
     <main>
-        <section class="panel workflow-guide" aria-labelledby="workflow-heading">
-            <div class="section-heading">
+        <details class="panel workflow-guide">
+            <summary class="workflow-summary">
                 <div>
                     <p class="step">Från önskemål till patruller</p>
                     <h2 id="workflow-heading">Så går det till</h2>
                 </div>
-            </div>
-            <p class="workflow-lead">
-                Samla först in önskemålen på papper och för sedan över dem till ett
-                kalkylark. När arket sparats som CSV är det redo för Patrullbyggaren.
-            </p>
+            </summary>
+            <div class="workflow-content">
+                <p class="workflow-lead">
+                    Samla först in önskemålen på papper och för sedan över dem till ett
+                    kalkylark. När arket sparats som CSV är det redo för Patrullbyggaren.
+                </p>
 
-            <ol class="workflow-steps">
+                <ol class="workflow-steps">
                 <li class="workflow-card">
                     <span class="workflow-number" aria-hidden="true">1</span>
                     <h3>Scouterna skriver varsin lapp</h3>
@@ -100,8 +101,9 @@
                         laddas upp nedan — eller öppnas och klistras in som text.
                     </p>
                 </li>
-            </ol>
-        </section>
+                </ol>
+            </div>
+        </details>
 
         <section id="builder" class="panel input-panel" aria-labelledby="input-heading">
             <div class="section-heading">

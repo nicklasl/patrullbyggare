@@ -15,6 +15,8 @@ assert.match(html, /<textarea[\s\S]+id="csv-text"/);
 assert.match(html, /connect-src 'none'/);
 assert.match(html, /Ingen scoutdata skickas eller sparas/);
 assert.match(html, /Scouterna skriver varsin lapp/);
+assert.match(html, /<details class="panel workflow-guide">/);
+assert.doesNotMatch(html, /<details class="panel workflow-guide" open>/);
 assert.match(html, /stryka under det/);
 assert.match(html, /scoutens eget namn i kolumn A/);
 assert.match(html, /Börja direkt på rad 1 utan rubrikrad/);
