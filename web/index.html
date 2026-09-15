@@ -109,7 +109,14 @@
                     <p class="step">Steg 4</p>
                     <h2 id="input-heading">Lägg in CSV-filen</h2>
                 </div>
-                <a class="format-link" href="#csv-format">Visa CSV-format</a>
+                <button
+                    id="show-csv-format"
+                    class="format-link"
+                    type="button"
+                    aria-haspopup="dialog"
+                >
+                    Visa CSV-format
+                </button>
             </div>
 
             <div class="tabs" role="tablist" aria-label="Välj hur CSV-data ska läggas till">
@@ -185,23 +192,37 @@
             </div>
 
             <dl class="statistics" id="statistics"></dl>
+            <div class="status-legend" aria-label="Förklaring av status i patrullerna">
+                <div><span class="status status--yes">JA</span> Minst ett kompisönskemål finns i samma patrull.</div>
+                <div><span class="status status--no">NEJ</span> Inget kompisönskemål finns i samma patrull.</div>
+                <div><span class="status">Inga önskemål</span> Scouten lämnade inga kompisönskemål.</div>
+            </div>
             <div class="patrol-grid" id="patrol-grid"></div>
 
-            <details class="visualization">
-                <summary>Visa relationsdiagram</summary>
+            <details class="visualization" open>
+                <summary>Relationsdiagram</summary>
                 <img id="result-graph" alt="Diagram över patruller och kamratönskemål">
             </details>
         </section>
+    </main>
 
-        <section id="csv-format" class="format-help" aria-labelledby="format-heading">
-            <p class="step">CSV-format</p>
-            <h2 id="format-heading">Ett namn per rad, följt av önskemål</h2>
-            <pre><code>Sven,Anna,Erik
+    <dialog id="csv-format-dialog" class="format-dialog" aria-labelledby="format-heading">
+        <div class="dialog-heading">
+            <div>
+                <p class="step">CSV-format</p>
+                <h2 id="format-heading">Ett namn per rad, följt av önskemål</h2>
+            </div>
+            <button id="close-csv-format" class="close-button" type="button" aria-label="Stäng">×</button>
+        </div>
+        <p>
+            Börja direkt med den första scouten, utan rubrikrad. Kolumn A innehåller
+            scoutens namn och följande kolumner innehåller kompisönskemålen.
+        </p>
+        <pre><code>Sven,Anna,Erik
 Anna,Sven,Erik
 Karin,Olof
 Johan</code></pre>
-        </section>
-    </main>
+    </dialog>
 
     <footer>
         Patrullbyggaren körs helt lokalt — som en lägereld utan moln.

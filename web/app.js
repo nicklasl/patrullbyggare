@@ -12,6 +12,10 @@ const resultsSection = document.querySelector('#results');
 const statistics = document.querySelector('#statistics');
 const patrolGrid = document.querySelector('#patrol-grid');
 const resultGraph = document.querySelector('#result-graph');
+const relationDiagram = document.querySelector('.visualization');
+const csvFormatDialog = document.querySelector('#csv-format-dialog');
+const showCsvFormat = document.querySelector('#show-csv-format');
+const closeCsvFormat = document.querySelector('#close-csv-format');
 
 let activeMode = 'upload';
 let uploadedCsv = '';
@@ -38,6 +42,12 @@ tabs.forEach((tab, index) => {
         selectTab(nextTab);
         nextTab.focus();
     });
+});
+
+showCsvFormat.addEventListener('click', () => csvFormatDialog.showModal());
+closeCsvFormat.addEventListener('click', () => csvFormatDialog.close());
+csvFormatDialog.addEventListener('click', event => {
+    if (event.target === csvFormatDialog) csvFormatDialog.close();
 });
 
 function showMessages(items) {
@@ -131,7 +141,14 @@ function renderPatrols(patrols, result) {
                 const statusClass = record.status === 'JA'
                     ? 'yes'
                     : (record.status === 'NEJ' ? 'no' : 'neutral');
+                const statusDescription = record.status === 'JA'
+                    ? 'Minst ett kompisönskemål finns i samma patrull.'
+                    : (record.status === 'NEJ'
+                        ? 'Inget kompisönskemål finns i samma patrull.'
+                        : 'Scouten lämnade inga kompisönskemål.');
                 status.className = `status status--${statusClass}`;
+                status.title = statusDescription;
+                status.setAttribute('aria-label', `${record.status}: ${statusDescription}`);
                 item.append(name, status);
                 list.append(item);
             });
@@ -192,6 +209,7 @@ document.querySelector('#build-button').addEventListener('click', () => {
 
         renderPatrols(patrols, result);
         updateDownloads(patrols, scouts, result);
+        relationDiagram.open = true;
         showMessages([]);
         resultsSection.hidden = false;
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
