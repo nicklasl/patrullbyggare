@@ -1,6 +1,6 @@
 const core = window.Patrullbyggare;
-const csvLint = window.PatrullbyggareCsvLint;
-const visualizations = window.PatrullbyggareVisualizations;
+const csvLintApi = window.PatrullbyggareCsvLint;
+const visualizationApi = window.PatrullbyggareVisualizations;
 const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
 const fileInput = document.querySelector('#csv-file');
 const dropZone = document.querySelector('#drop-zone');
@@ -146,12 +146,12 @@ function makeDownload(content, type, filename) {
 }
 
 function updateDownloads(patrols, scouts, result) {
-    const svg = visualizations.createSvgGraph(patrols, scouts);
+    const svg = visualizationApi.createSvgGraph(patrols, scouts);
     downloads = {
         csv: makeDownload(core.createResultCsv(result), 'text/csv;charset=utf-8', 'patruller_resultat.csv'),
         svg: makeDownload(svg, 'image/svg+xml;charset=utf-8', 'patruller_resultat.svg'),
         mermaid: makeDownload(
-            visualizations.createMermaidGraph(patrols, scouts),
+            visualizationApi.createMermaidGraph(patrols, scouts),
             'text/plain;charset=utf-8',
             'patruller_resultat.mmd'
         ),
@@ -174,7 +174,7 @@ document.querySelector('#build-button').addEventListener('click', () => {
         return;
     }
 
-    const diagnostics = csvLint.lintCsv(content);
+    const diagnostics = csvLintApi.lintCsv(content);
     if (diagnostics.length > 0) {
         showMessages(diagnostics.map(diagnostic =>
             `Rad ${diagnostic.row}, kolumn ${diagnostic.column}: ${diagnostic.message}`
