@@ -1,6 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const webRoot = path.join(__dirname, '..', 'web');
 const html = fs.readFileSync(path.join(webRoot, 'index.html'), 'utf-8');
@@ -21,5 +22,58 @@ assert.match(app, /createSvgGraph/);
 assert.match(app, /createMermaidGraph/);
 assert.doesNotMatch(app, /\bfetch\s*\(/);
 assert.doesNotMatch(app, /XMLHttpRequest/);
+
+function createElement(properties) {
+    return Object.assign({
+        attributes: {},
+        listeners: {},
+        addEventListener(name, listener) {
+            this.listeners[name] = listener;
+        },
+        classList: { add() {}, remove() {} },
+        getAttribute(name) {
+            return this.attributes[name];
+        },
+        setAttribute(name, value) {
+            this.attributes[name] = value;
+        },
+        focus() {},
+    }, properties);
+}
+
+const uploadTab = createElement({
+    attributes: { 'aria-controls': 'upload-panel' },
+    dataset: { tab: 'upload' },
+});
+const pasteTab = createElement({
+    attributes: { 'aria-controls': 'paste-panel' },
+    dataset: { tab: 'paste' },
+});
+const uploadPanel = createElement({ hidden: false });
+const pastePanel = createElement({ hidden: true });
+const element = createElement({});
+const browser = {
+    console,
+    document: {
+        querySelector: selector => ({
+            '#upload-panel': uploadPanel,
+            '#paste-panel': pastePanel,
+        })[selector] || element,
+        querySelectorAll: selector => selector === '[role="tab"]'
+            ? [uploadTab, pasteTab]
+            : [],
+    },
+};
+browser.window = browser;
+vm.createContext(browser);
+
+['patrol-core.js', 'lint_csv.js', 'visualize.js'].forEach(file => {
+    vm.runInContext(fs.readFileSync(path.join(webRoot, '..', file), 'utf-8'), browser);
+});
+assert.doesNotThrow(() => vm.runInContext(app, browser));
+pasteTab.listeners.click();
+assert.strictEqual(pasteTab.attributes['aria-selected'], 'true');
+assert.strictEqual(uploadPanel.hidden, true);
+assert.strictEqual(pastePanel.hidden, false);
 
 console.log('Webbappen har två CSV-lägen, lokala exporter och inga nätverksanrop.');
