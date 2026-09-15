@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 function normalize(value) {
     return Array.from(value.normalize('NFC').toLocaleLowerCase('sv-SE'));
 }
@@ -133,6 +131,7 @@ function lintCsv(content) {
 }
 
 function main() {
+    const fs = require('fs');
     const file = process.argv[2];
     if (!file) {
         console.error('Användning: node lint_csv.js <fil.csv>');
@@ -162,6 +161,8 @@ function main() {
     process.exitCode = 1;
 }
 
-if (require.main === module) main();
+const csvLint = { findSpellingSuggestion, lintCsv, spellingDistance };
 
-module.exports = { findSpellingSuggestion, lintCsv, spellingDistance };
+if (typeof module !== 'undefined' && require.main === module) main();
+if (typeof module !== 'undefined') module.exports = csvLint;
+if (typeof window !== 'undefined') window.PatrullbyggareCsvLint = csvLint;

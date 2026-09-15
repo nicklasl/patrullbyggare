@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+        http-equiv="Content-Security-Policy"
+        content="default-src 'self'; connect-src 'none'; img-src 'self' blob:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Patrullbyggaren</title>
+    <meta
+        name="description"
+        content="Bygg balanserade scoutpatruller efter kamratönskemål, direkt i webbläsaren."
+    >
+    <link rel="stylesheet" href="styles.css">
+    <script src="../patrol-core.js" defer></script>
+    <script src="../lint_csv.js" defer></script>
+    <script src="../visualize.js" defer></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <header class="hero">
+        <div class="hero__content">
+            <p class="eyebrow">Scoutverktyg</p>
+            <h1>Bygg patruller som håller ihop</h1>
+            <p class="intro">
+                Lägg in scoutlistan, välj en riktstorlek och låt Patrullbyggaren väga in
+                kamratönskemålen.
+            </p>
+            <p class="privacy-note">
+                <span aria-hidden="true">◆</span>
+                Allt sker lokalt i din webbläsare. Ingen scoutdata skickas eller sparas.
+            </p>
+        </div>
+    </header>
+
+    <main>
+        <section class="panel input-panel" aria-labelledby="input-heading">
+            <div class="section-heading">
+                <div>
+                    <p class="step">Steg 1</p>
+                    <h2 id="input-heading">Lägg till scoutlistan</h2>
+                </div>
+                <a class="format-link" href="#csv-format">Visa CSV-format</a>
+            </div>
+
+            <div class="tabs" role="tablist" aria-label="Välj hur CSV-data ska läggas till">
+                <button
+                    id="upload-tab"
+                    class="tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="upload-panel"
+                    data-tab="upload"
+                >
+                    Ladda upp CSV
+                </button>
+                <button
+                    id="paste-tab"
+                    class="tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="paste-panel"
+                    data-tab="paste"
+                    tabindex="-1"
+                >
+                    Klistra in CSV
+                </button>
+            </div>
+
+            <div id="upload-panel" role="tabpanel" aria-labelledby="upload-tab">
+                <label class="drop-zone" id="drop-zone" for="csv-file">
+                    <span class="drop-zone__icon" aria-hidden="true">⇧</span>
+                    <strong>Dra en CSV-fil hit</strong>
+                    <span>eller välj en fil från din enhet</span>
+                    <span class="button-like">Välj CSV-fil</span>
+                    <span class="selected-file" id="selected-file" aria-live="polite"></span>
+                </label>
+                <input id="csv-file" class="visually-hidden" type="file" accept=".csv,text/csv">
+            </div>
+
+            <div id="paste-panel" role="tabpanel" aria-labelledby="paste-tab" hidden>
+                <label class="textarea-label" for="csv-text">CSV-data</label>
+                <textarea
+                    id="csv-text"
+                    rows="9"
+                    spellcheck="false"
+                    placeholder="Sven,Anna,Erik&#10;Anna,Sven,Erik&#10;Karin,Olof&#10;Johan"
+                ></textarea>
+            </div>
+
+            <div class="settings-row">
+                <label for="target-size">
+                    <span>Önskad patrullstorlek</span>
+                    <small>En person mer eller mindre kan användas för jämna patruller.</small>
+                </label>
+                <input id="target-size" type="number" min="2" step="1" value="5" inputmode="numeric">
+            </div>
+
+            <div id="messages" class="messages" role="alert" hidden></div>
+            <button id="build-button" class="primary-button" type="button">Bygg patruller</button>
+        </section>
+
+        <section id="results" class="panel results" aria-labelledby="results-heading" hidden>
+            <div class="section-heading results-heading">
+                <div>
+                    <p class="step">Resultat</p>
+                    <h2 id="results-heading">Dina patruller</h2>
+                </div>
+                <div class="download-menu" aria-label="Ladda ner resultat">
+                    <button type="button" class="secondary-button" data-download="csv">CSV</button>
+                    <button type="button" class="secondary-button" data-download="svg">SVG</button>
+                    <button type="button" class="secondary-button" data-download="mermaid">Mermaid</button>
+                </div>
+            </div>
+
+            <dl class="statistics" id="statistics"></dl>
+            <div class="patrol-grid" id="patrol-grid"></div>
+
+            <details class="visualization">
+                <summary>Visa relationsdiagram</summary>
+                <img id="result-graph" alt="Diagram över patruller och kamratönskemål">
+            </details>
+        </section>
+
+        <section id="csv-format" class="format-help" aria-labelledby="format-heading">
+            <p class="step">CSV-format</p>
+            <h2 id="format-heading">Ett namn per rad, följt av önskemål</h2>
+            <pre><code>Sven,Anna,Erik
+Anna,Sven,Erik
+Karin,Olof
+Johan</code></pre>
+        </section>
+    </main>
+
+    <footer>
+        Patrullbyggaren körs helt lokalt — som en lägereld utan moln.
+    </footer>
+</body>
+</html>

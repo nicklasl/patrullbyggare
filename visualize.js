@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 function escapeXml(value) {
     return value
         .replaceAll('&', '&amp;')
@@ -157,8 +155,12 @@ function createSvgGraph(patrols, scouter) {
 }
 
 function exportVisualizations(patrols, scouter, mermaidPath, svgPath) {
+    const fs = require('fs');
     fs.writeFileSync(mermaidPath, createMermaidGraph(patrols, scouter), 'utf-8');
     fs.writeFileSync(svgPath, createSvgGraph(patrols, scouter), 'utf-8');
 }
 
-module.exports = { createMermaidGraph, createSvgGraph, exportVisualizations };
+const visualizations = { createMermaidGraph, createSvgGraph, exportVisualizations };
+
+if (typeof module !== 'undefined') module.exports = visualizations;
+if (typeof window !== 'undefined') window.PatrullbyggareVisualizations = visualizations;

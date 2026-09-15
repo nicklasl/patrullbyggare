@@ -20,6 +20,22 @@ Ett Node.js-program för att automatiskt dela in scouter i patruller baserat på
 
 ## Installation & Användning
 
+### Kör i webbläsaren
+
+Webbgränssnittet kan använda en uppladdad CSV-fil eller inklistrad CSV-text.
+All bearbetning och alla exporter sker lokalt i webbläsaren; ingen scoutdata
+skickas över nätverket.
+
+Starta en lokal webbserver i projektets rot och öppna `/web/`, till exempel:
+
+```bash
+python3 -m http.server
+```
+
+Öppna sedan `http://localhost:8000/web/`.
+
+Resultatet visas på sidan och kan laddas ner som CSV, Mermaid eller SVG.
+
 ### Tester
 
 Kör lintning, syntaxkontroll och alla automatiska tester med:

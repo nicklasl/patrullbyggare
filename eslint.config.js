@@ -9,7 +9,17 @@ module.exports = [
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'commonjs',
-            globals: globals.node,
+            globals: {
+                ...globals.node,
+                window: 'readonly',
+            },
+        },
+    },
+    {
+        files: ['web/**/*.js'],
+        languageOptions: {
+            sourceType: 'script',
+            globals: globals.browser,
         },
     },
 ];
