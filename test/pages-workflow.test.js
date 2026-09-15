@@ -8,8 +8,9 @@ const workflow = fs.readFileSync(
 );
 
 assert.match(workflow, /branches: \[main\]/);
-assert.match(workflow, /actions\/upload-pages-artifact@v4/);
-assert.match(workflow, /actions\/deploy-pages@v4/);
+assert.match(workflow, /actions\/configure-pages@v6/);
+assert.match(workflow, /actions\/upload-pages-artifact@v5/);
+assert.match(workflow, /actions\/deploy-pages@v5/);
 assert.match(workflow, /path: _site/);
 assert.match(workflow, /pages: write/);
 assert.match(workflow, /id-token: write/);
