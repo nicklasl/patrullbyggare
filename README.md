@@ -26,6 +26,9 @@ Webbgränssnittet kan använda en uppladdad CSV-fil eller inklistrad CSV-text.
 All bearbetning och alla exporter sker lokalt i webbläsaren; ingen scoutdata
 skickas över nätverket.
 
+Den publicerade versionen finns på
+[nicklasl.github.io/patrullbyggare](https://nicklasl.github.io/patrullbyggare/).
+
 Starta en lokal webbserver i projektets rot och öppna `/web/`, till exempel:
 
 ```bash
