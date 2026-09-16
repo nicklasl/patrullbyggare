@@ -17,6 +17,12 @@ const csvFormatDialog = document.querySelector('#csv-format-dialog');
 const showCsvFormat = document.querySelector('#show-csv-format');
 const closeCsvFormat = document.querySelector('#close-csv-format');
 
+const basePatrolsSection = document.querySelector('#base-patrols-section');
+const basePatrolsSummaryText = document.querySelector('#base-patrols-summary-text');
+const labelNewPatrolsTarget = document.querySelector('#label-new-patrols-target');
+const descNewPatrolsTarget = document.querySelector('#desc-new-patrols-target');
+const descNewPatrolsFill = document.querySelector('#desc-new-patrols-fill');
+
 let activeMode = 'upload';
 let uploadedCsv = '';
 let graphUrl;
@@ -30,6 +36,7 @@ function selectTab(tab) {
         candidate.tabIndex = selected ? 0 : -1;
         document.querySelector(`#${candidate.getAttribute('aria-controls')}`).hidden = !selected;
     });
+    updateBasePatrolsVisibility();
 }
 
 tabs.forEach((tab, index) => {
@@ -70,6 +77,74 @@ function showMessages(items) {
     messages.append(list);
 }
 
+function updateDynamicTargetText() {
+    const targetSize = parseInt(targetSizeInput ? targetSizeInput.value : 5, 10) || 5;
+    const minSize = Math.max(2, targetSize - 1);
+    const maxSize = targetSize + 1;
+
+    if (labelNewPatrolsTarget) {
+        labelNewPatrolsTarget.textContent = `Håll patrullerna nära ${targetSize} scouter`;
+    }
+    if (descNewPatrolsTarget) {
+        descNewPatrolsTarget.textContent = `Patrullerna får innehålla ${minSize}–${maxSize} scouter. Nya patruller kan skapas även om befintliga patruller fortfarande har plats.`;
+    }
+    if (descNewPatrolsFill) {
+        descNewPatrolsFill.textContent = `Befintliga patruller fylls upp till ${maxSize} scouter innan en ny skapas.`;
+    }
+}
+
+if (targetSizeInput) {
+    targetSizeInput.addEventListener('input', updateDynamicTargetText);
+}
+
+function getActiveCsvContent() {
+    const val = activeMode === 'upload' ? uploadedCsv : (csvText ? csvText.value : '');
+    return val || '';
+}
+
+function resetBasePatrolsControls() {
+    const lockedRadio = document.querySelector('input[name="base-patrols-mode"][value="locked"]');
+    if (lockedRadio) lockedRadio.checked = true;
+
+    const targetRadio = document.querySelector('input[name="new-patrols-mode"][value="target-size"]');
+    if (targetRadio) targetRadio.checked = true;
+}
+
+function updateBasePatrolsVisibility() {
+    if (!basePatrolsSection) return;
+    const content = getActiveCsvContent();
+    if (!content.trim()) {
+        basePatrolsSection.hidden = true;
+        resetBasePatrolsControls();
+        return;
+    }
+
+    try {
+        const scouts = core.parseCsv(content);
+        const basePatrols = scouts.basePatrols || new Map();
+        if (basePatrols.size > 0) {
+            const uniquePatrols = new Set(basePatrols.values());
+            const patrolCount = uniquePatrols.size;
+            const scoutCount = basePatrols.size;
+            const patrolWord = patrolCount === 1 ? 'befintlig patrull' : 'befintliga patruller';
+            const scoutWord = scoutCount === 1 ? 'placerad scout' : 'placerade scouter';
+
+            if (basePatrolsSummaryText) {
+                basePatrolsSummaryText.textContent = `Vi hittade ${patrolCount} ${patrolWord} med ${scoutCount} ${scoutWord}. Välj hur de ska användas när resten av gruppen delas in.`;
+            }
+            basePatrolsSection.hidden = false;
+        } else {
+            basePatrolsSection.hidden = true;
+            resetBasePatrolsControls();
+        }
+    } catch {
+        basePatrolsSection.hidden = true;
+        resetBasePatrolsControls();
+    }
+}
+
+csvText.addEventListener('input', updateBasePatrolsVisibility);
+
 async function useFile(file) {
     if (!file) return;
     if (!file.name.toLocaleLowerCase('sv-SE').endsWith('.csv')) {
@@ -81,6 +156,7 @@ async function useFile(file) {
         uploadedCsv = await file.text();
         selectedFile.textContent = `${file.name} är redo`;
         showMessages([]);
+        updateBasePatrolsVisibility();
     } catch (error) {
         showMessages([`Filen kunde inte läsas: ${error.message}`]);
     }
@@ -116,27 +192,51 @@ function createStatistic(label, value) {
 }
 
 function renderPatrols(patrols, result) {
-    statistics.replaceChildren(
+    const statsList = [
         createStatistic('Scouter', result.statistics.scoutCount),
         createStatistic('Patruller', patrols.length),
-        createStatistic('Önskemål uppfyllda', `${result.statistics.satisfiedPercentage}%`)
-    );
+        createStatistic('Önskemål uppfyllda', `${result.statistics.satisfiedPercentage}%`),
+    ];
+
+    if (result.statistics.totalBaseMembers > 0) {
+        statsList.push(createStatistic(
+            'Behållna i grundpatrull',
+            `${result.statistics.retainedBaseMembers} / ${result.statistics.totalBaseMembers}`
+        ));
+    }
+
+    statistics.replaceChildren(...statsList);
     patrolGrid.replaceChildren();
 
     patrols.forEach((patrol, index) => {
         const card = document.createElement('article');
         card.className = 'patrol-card';
         const heading = document.createElement('h3');
-        heading.textContent = `Patrull ${index + 1}`;
+        const patrolName = patrol.name || `Patrull ${index + 1}`;
+        heading.textContent = patrolName;
         const list = document.createElement('ul');
 
         result.records
-            .filter(record => record.patrol === heading.textContent)
+            .filter(record => record.patrol === patrolName)
             .forEach(record => {
                 const item = document.createElement('li');
+                const nameWrapper = document.createElement('div');
+                nameWrapper.style.display = 'flex';
+                nameWrapper.style.flexDirection = 'column';
+
                 const name = document.createElement('span');
-                const status = document.createElement('span');
                 name.textContent = record.scout;
+                nameWrapper.append(name);
+
+                if (record.memberStatus && record.memberStatus !== 'Fri scout') {
+                    const note = document.createElement('small');
+                    note.textContent = record.memberStatus;
+                    note.style.color = 'var(--muted)';
+                    note.style.fontSize = '0.78rem';
+                    nameWrapper.append(note);
+                }
+
+                const status = document.createElement('span');
                 status.textContent = record.status;
                 const statusClass = record.status === 'JA'
                     ? 'yes'
@@ -149,7 +249,7 @@ function renderPatrols(patrols, result) {
                 status.className = `status status--${statusClass}`;
                 status.title = statusDescription;
                 status.setAttribute('aria-label', `${record.status}: ${statusDescription}`);
-                item.append(name, status);
+                item.append(nameWrapper, status);
                 list.append(item);
             });
 
@@ -180,7 +280,7 @@ function updateDownloads(patrols, scouts, result) {
 }
 
 document.querySelector('#build-button').addEventListener('click', () => {
-    const content = activeMode === 'upload' ? uploadedCsv : csvText.value;
+    const content = getActiveCsvContent();
     if (!content.trim()) {
         showMessages([
             activeMode === 'upload'
@@ -204,7 +304,16 @@ document.querySelector('#build-button').addEventListener('click', () => {
         const targetSize = core.parseTargetSize(targetSizeInput.value);
         const scouts = core.parseCsv(content);
         core.validateRosterSize(scouts.size, targetSize);
-        const patrols = core.buildPatrols(scouts, targetSize);
+
+        const basePatrolsModeRadio = document.querySelector('input[name="base-patrols-mode"]:checked');
+        const newPatrolsModeRadio = document.querySelector('input[name="new-patrols-mode"]:checked');
+
+        const options = {
+            basePatrolsMode: basePatrolsModeRadio ? basePatrolsModeRadio.value : 'locked',
+            newPatrolsMode: newPatrolsModeRadio ? newPatrolsModeRadio.value : 'target-size',
+        };
+
+        const patrols = core.buildPatrols(scouts, targetSize, options);
         const result = core.createPatrolResult(patrols, scouts);
 
         renderPatrols(patrols, result);
@@ -232,3 +341,5 @@ document.querySelectorAll('[data-download]').forEach(button => {
         URL.revokeObjectURL(url);
     });
 });
+
+updateDynamicTargetText();

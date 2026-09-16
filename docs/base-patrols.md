@@ -12,28 +12,26 @@ Alla patruller måste även fortsättningsvis innehålla mellan
 
 ## Begrepp
 
-- **Grundpatrull:** En namngiven patrull som redan finns i verksamheten.
-- **Grundmedlem:** En scout som har en grundpatrull i indata.
-- **Fri scout:** En scout utan grundpatrull.
+- **Grundpatrull:** En namngiven patrull som scouten tidigare tillhörde i verksamheten (t.ex. från föregående termin eller läsår).
+- **Grundmedlem:** En scout som har en tilldelad grundpatrull i indata.
+- **Fri scout:** En scout utan tidigare grundpatrull (t.ex. en ny scout i gruppen).
 - **Ny patrull:** En patrull som algoritmen skapar utöver grundpatrullerna.
-- **Omplacering:** En grundmedlem placeras i en annan patrull än sin
-  grundpatrull.
+- **Omplacering:** En grundmedlem placeras i en annan patrull än sin tidigare grundpatrull.
 
 ## CSV-format
 
-Det utökade formatet har en rubrikrad. Scoutens namn ligger kvar i första
-kolumnen, grundpatrullen anges i den andra och kompisönskemålen följer därefter.
+Det utökade formatet har en rubrikrad där grundpatrullen anges i första kolumnen, scoutens namn i den andra och kompisönskemålen följer därefter:
 
 ```csv
-Scout,Grundpatrull,Önskemål 1,Önskemål 2
-Anna,Räven,Bo,Clara
-Bo,Räven,Anna
-Clara,,Anna,David
-David,,Clara
+Grundpatrull,Scout,Önskemål 1,Önskemål 2
+Räven,Anna,Bo,Clara
+Räven,Bo,Anna
+,Clara,Anna,David
+,David,Clara
 ```
 
-- `Scout` och `Grundpatrull` är fasta kolumner.
-- Alla kolumner efter `Grundpatrull` behandlas som kompisönskemål.
+- `Grundpatrull` och `Scout` är fasta kolumner.
+- Alla kolumner efter `Scout` behandlas som kompisönskemål.
 - Tom `Grundpatrull` betyder att scouten får placeras fritt.
 - Varje grundmedlem ska ha patrullnamnet på sin egen rad. Sammanslagna celler
   eller värden som underförstås från raden ovan stöds inte.
@@ -52,7 +50,7 @@ Clara,Anna,David
 David,Clara
 ```
 
-Om första raden börjar med `Scout,Grundpatrull` används det utökade formatet.
+Om första raden börjar med `Grundpatrull,Scout` eller `Patrull,Scout` används det utökade formatet.
 Annars tolkas filen som det befintliga formatet utan grundpatruller.
 
 ## När inställningarna visas
