@@ -30,7 +30,7 @@ function parseCsv(content) {
         if (parts.every(p => !p)) return;
 
         let basePatrol = '';
-        let scoutName = '';
+        let scoutName;
         let preferences = [];
 
         if (isPatrolColumnFormat) {
