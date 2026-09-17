@@ -267,10 +267,10 @@ main {
 
 .sheet-example {
     display: grid;
-    overflow: hidden;
+    overflow-x: auto;
     border: 1px solid #c7cec8;
     border-radius: 0.45rem;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(max-content, 1fr));
     background: white;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.72rem;
@@ -278,18 +278,17 @@ main {
 
 .sheet-example div {
     min-height: 1.7rem;
-    overflow: hidden;
     padding: 0.3rem 0.4rem;
     border-right: 1px solid #d9dfda;
     border-bottom: 1px solid #d9dfda;
-    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.sheet-example div:nth-child(3n) {
+.sheet-example div:nth-child(4n) {
     border-right: 0;
 }
 
-.sheet-example div:nth-last-child(-n + 3) {
+.sheet-example div:nth-last-child(-n + 4) {
     border-bottom: 0;
 }
 
@@ -693,6 +692,84 @@ footer {
 
 [hidden] {
     display: none !important;
+}
+
+.base-patrols-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--paper);
+}
+
+.base-patrols-summary {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--forest-100);
+    color: var(--forest-950);
+}
+
+.base-patrols-summary strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.base-patrols-summary p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.settings-group h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.radio-option:hover {
+    border-color: var(--forest-700);
+    background: #f1f7f3;
+}
+
+.radio-option input[type="radio"] {
+    margin-top: 0.25rem;
+    accent-color: var(--forest-800);
+}
+
+.radio-option div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.radio-option strong {
+    font-size: 0.95rem;
+    color: var(--ink);
+}
+
+.radio-option span {
+    font-size: 0.875rem;
+    color: var(--muted);
 }
 
 @media (max-width: 42rem) {

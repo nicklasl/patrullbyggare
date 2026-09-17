@@ -50,52 +50,100 @@ function findSpellingSuggestion(value, knownNames) {
 
 function lintCsv(content) {
     const diagnostics = [];
-    const rows = content.split(/\r?\n/)
+    const rawRows = content.split(/\r?\n/)
         .map((line, index) => ({
             number: index + 1,
             cells: line.split(',').map(cell => cell.trim()),
             empty: line.trim() === '',
         }))
         .filter(row => !row.empty);
-    const scoutRows = new Map();
 
-    if (rows.length === 0) {
+    if (rawRows.length === 0) {
         return [{ row: 1, column: 1, message: 'CSV-filen innehåller inga scouter.' }];
     }
 
+    const firstLine = rawRows[0].cells.join(',');
+    const hasHeader = /^(Grundpatrull|Patrull)\s*,\s*Scout/i.test(firstLine);
+    const rows = hasHeader ? rawRows.slice(1) : rawRows;
+
+    if (hasHeader && rows.length === 0) {
+        return [{ row: 1, column: 1, message: 'CSV-filen innehåller inga scouter.' }];
+    }
+
+    const hasEmptyFirstCell = !hasHeader && rows.some(r => r.cells.length >= 2 && r.cells[0] === '' && Boolean(r.cells[1]));
+    const isPatrolColumnFormat = hasHeader || hasEmptyFirstCell;
+
+    const scoutRows = new Map();
+    const patrolNamesMap = new Map();
+
     rows.forEach(row => {
-        const name = row.cells[0];
-        if (!name) {
+        const basePatrol = isPatrolColumnFormat ? row.cells[0] : '';
+        const scout = isPatrolColumnFormat ? row.cells[1] : row.cells[0];
+        const scoutCol = isPatrolColumnFormat ? 2 : 1;
+
+        if (basePatrol) {
+            const canonicalPatrol = basePatrol.normalize('NFC').toLocaleLowerCase('sv-SE');
+            if (!patrolNamesMap.has(canonicalPatrol)) {
+                patrolNamesMap.set(canonicalPatrol, basePatrol);
+            }
+        }
+
+        if (!scout) {
             diagnostics.push({
                 row: row.number,
-                column: 1,
+                column: scoutCol,
                 message: 'Scoutens namn saknas.',
             });
             return;
         }
 
-        if (scoutRows.has(name)) {
+        if (scoutRows.has(scout)) {
             diagnostics.push({
                 row: row.number,
-                column: 1,
-                message: `Scouten "${name}" finns redan på rad ${scoutRows.get(name)}.`,
+                column: scoutCol,
+                message: `Scouten "${scout}" finns redan på rad ${scoutRows.get(scout)}.`,
             });
             return;
         }
 
-        scoutRows.set(name, row.number);
+        scoutRows.set(scout, row.number);
     });
 
+    const knownPatrolNames = Array.from(patrolNamesMap.values());
     const knownNames = Array.from(scoutRows.keys());
 
+    // Check base patrol spelling typos
+    if (isPatrolColumnFormat) {
+        const seenPatrols = new Set();
+        rows.forEach(row => {
+            const basePatrol = row.cells[0];
+            if (!basePatrol || seenPatrols.has(basePatrol)) return;
+            seenPatrols.add(basePatrol);
+
+            const otherPatrols = knownPatrolNames.filter(p => p !== basePatrol);
+            const suggestion = findSpellingSuggestion(basePatrol, otherPatrols);
+            if (suggestion) {
+                diagnostics.push({
+                    row: row.number,
+                    column: 1,
+                    message: `Patrullnamnet "${basePatrol}" liknar "${suggestion}". Möjligt stavfel.`,
+                });
+            }
+        });
+    }
+
     rows.forEach(row => {
-        const scout = row.cells[0];
+        const scout = isPatrolColumnFormat ? row.cells[1] : row.cells[0];
+        if (!scout) return;
+
+        const preferencesStartIdx = isPatrolColumnFormat ? 2 : 1;
+        const preferenceCells = row.cells.slice(preferencesStartIdx);
         const seenPreferences = new Set();
 
-        row.cells.slice(1).forEach((preference, index) => {
+        preferenceCells.forEach((preference, index) => {
             if (!preference) return;
 
-            const column = index + 2;
+            const column = index + preferencesStartIdx + 1;
             if (preference === scout) {
                 diagnostics.push({
                     row: row.number,

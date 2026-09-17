@@ -41,7 +41,8 @@ function createMermaidGraph(patrols, scouter) {
     const lines = ['flowchart LR'];
 
     patrols.forEach((patrol, patrolIndex) => {
-        lines.push(`  subgraph patrol_${patrolIndex + 1}["Patrull ${patrolIndex + 1}"]`);
+        const patrolName = patrol.name || `Patrull ${patrolIndex + 1}`;
+        lines.push(`  subgraph patrol_${patrolIndex + 1}["${escapeXml(patrolName)}"]`);
         lines.push('    direction TB');
         nodes.filter(node => node.patrolIndex === patrolIndex).forEach(node => {
             lines.push(`    ${node.id}["${escapeXml(node.name)}"]`);
@@ -113,8 +114,9 @@ function createSvgGraph(patrols, scouter) {
         const row = Math.floor(patrolIndex / columnCount);
         const x = panelGap + column * (panelWidth + panelGap);
         const y = panelGap + row * (panelHeight + panelGap);
+        const patrolName = patrol.name || `Patrull ${patrolIndex + 1}`;
         lines.push(`  <rect x="${x}" y="${y}" width="${panelWidth}" height="${panelHeight}" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>`);
-        lines.push(`  <text x="${x + panelPadding}" y="${y + 30}" font-family="sans-serif" font-size="18" font-weight="700" fill="#0f172a">Patrull ${patrolIndex + 1}</text>`);
+        lines.push(`  <text x="${x + panelPadding}" y="${y + 30}" font-family="sans-serif" font-size="18" font-weight="700" fill="#0f172a">${escapeXml(patrolName)}</text>`);
     });
 
     edges.forEach(edge => {

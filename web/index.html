@@ -67,21 +67,21 @@
                     <span class="workflow-number" aria-hidden="true">2</span>
                     <h3>För över lapparna till ett kalkylark</h3>
                     <p>
-                        Använd Google Kalkylark eller Excel. Skriv en scout per rad:
-                        scoutens eget namn i kolumn A och ett önskemål per cell i kolumn
-                        B, C och så vidare.
+                        Använd Google Kalkylark eller Excel. Börja med rubrikraden <code>Patrull,Scout,Önskemål 1,Önskemål 2</code>.
+                        Om scouten redan tillhör en patrull anges den i kolumn A, scoutens namn i kolumn B och kompisönskemålen i kolumn C, D osv.
                     </p>
                     <p class="workflow-tip">
-                        Börja direkt på rad 1 utan rubrikrad. Använd samma stavning varje
-                        gång ett namn förekommer.
+                        För nya scouter lämnas kolumn A tom. Använd samma stavning varje gång ett patrullnamn eller personnamn förekommer.
                     </p>
-                    <div class="sheet-example" aria-label="Exempel på kalkylark utan rubrikrad">
+                    <div class="sheet-example" aria-label="Exempel på kalkylark med befintliga patruller">
                         <div class="sheet-column" aria-hidden="true">A</div>
                         <div class="sheet-column" aria-hidden="true">B</div>
                         <div class="sheet-column" aria-hidden="true">C</div>
-                        <div>Alex</div><div>Sam</div><div>Kim</div>
-                        <div>Sam</div><div>Alex</div><div></div>
-                        <div>Kim</div><div>Alex</div><div></div>
+                        <div class="sheet-column" aria-hidden="true">D</div>
+                        <div>Patrull</div><div>Scout</div><div>Önskemål 1</div><div>Önskemål 2</div>
+                        <div>Räven</div><div>Alex</div><div>Sam</div><div>Kim</div>
+                        <div>Räven</div><div>Sam</div><div>Alex</div><div></div>
+                        <div></div><div>Kim</div><div>Alex</div><div></div>
                     </div>
                 </li>
 
@@ -168,6 +168,48 @@
                 ></textarea>
             </div>
 
+            <div id="base-patrols-section" class="base-patrols-panel" hidden>
+                <div class="base-patrols-summary" id="base-patrols-summary">
+                    <strong>Befintliga patruller hittades</strong>
+                    <p id="base-patrols-summary-text"></p>
+                </div>
+                <div class="settings-group">
+                    <h3>Befintliga medlemmar</h3>
+                    <label class="radio-option">
+                        <input type="radio" name="base-patrols-mode" value="locked" checked>
+                        <div>
+                            <strong>Behåll i sin patrull</strong>
+                            <span>Medlemmarna i grundpatrullerna flyttas inte.</span>
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="base-patrols-mode" value="flexible">
+                        <div>
+                            <strong>Tillåt omplaceringar</strong>
+                            <span>Medlemmar får flyttas om det förbättrar helheten. Grundpatrullerna behandlas som önskemål, inte krav.</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="settings-group">
+                    <h3>Nya patruller</h3>
+                    <label class="radio-option">
+                        <input type="radio" name="new-patrols-mode" value="target-size" checked>
+                        <div>
+                            <strong id="label-new-patrols-target">Håll patrullerna nära 5 scouter</strong>
+                            <span id="desc-new-patrols-target">Patrullerna får innehålla 4–6 scouter. Nya patruller kan skapas även om befintliga patruller fortfarande har plats.</span>
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="new-patrols-mode" value="fill-existing">
+                        <div>
+                            <strong>Fyll befintliga patruller först</strong>
+                            <span id="desc-new-patrols-fill">Befintliga patruller fylls upp till 6 scouter innan en ny skapas.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
             <div class="settings-row">
                 <label for="target-size">
                     <span>Önskad patrullstorlek</span>
@@ -212,18 +254,19 @@
         <div class="dialog-heading">
             <div>
                 <p class="step">CSV-format</p>
-                <h2 id="format-heading">Ett namn per rad, följt av önskemål</h2>
+                <h2 id="format-heading">Patrull, scout och önskemål</h2>
             </div>
             <button id="close-csv-format" class="close-button" type="button" aria-label="Stäng">×</button>
         </div>
         <p>
-            Börja direkt med den första scouten, utan rubrikrad. Kolumn A innehåller
-            scoutens namn och följande kolumner innehåller kompisönskemålen.
+            Använd rubrikraden <code>Patrull,Scout,Önskemål 1,Önskemål 2...</code>.
+            Ange tidigare patrull i första kolumnen (lämna tom för nya scouter), scoutens eget namn i andra kolumnen och därefter kompisönskemålen.
         </p>
-        <pre><code>Sven,Anna,Erik
-Anna,Sven,Erik
-Karin,Olof
-Johan</code></pre>
+        <pre><code>Patrull,Scout,Önskemål 1,Önskemål 2
+Räven,Alex,Sam,Kim
+Räven,Sam,Alex
+,Kim,Alex</code></pre>
+        <p><small>Filen kan även skrivas utan rubrikrad om inga befintliga patruller används: <code>Alex,Sam,Kim</code></small></p>
     </dialog>
 
     <footer>

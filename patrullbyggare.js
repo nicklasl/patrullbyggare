@@ -14,12 +14,16 @@ function exportAndReport(patrols, scouts, outputCsvPath, targetSize) {
     );
 
     patrols.forEach((patrol, index) => {
-        console.log(`Patrull ${index + 1} (${patrol.length} scouter):`);
+        const patrolName = patrol.name || `Patrull ${index + 1}`;
+        console.log(`${patrolName} (${patrol.length} scouter):`);
         result.records
-            .filter(record => record.patrol === `Patrull ${index + 1}`)
+            .filter(record => record.patrol === patrolName)
             .forEach(record => {
+                const memberNote = record.memberStatus && record.memberStatus !== 'Fri scout'
+                    ? ` [${record.memberStatus}]`
+                    : '';
                 console.log(
-                    `  - ${record.scout} `
+                    `  - ${record.scout}${memberNote} `
                     + `(Önskade: ${record.preferences.join(', ') || 'Inga'}) `
                     + `-> Kamrat i patrull: ${record.status}`
                 );
@@ -36,23 +40,70 @@ function exportAndReport(patrols, scouts, outputCsvPath, targetSize) {
         `Scouter som fick minst en önskad kamrat: ${statistics.satisfiedCount} / `
         + `${statistics.totalWithPreferences} (${statistics.satisfiedPercentage}%)`
     );
+    if (statistics.totalBaseMembers > 0) {
+        console.log(
+            `Behållna grundmedlemmar: ${statistics.retainedBaseMembers} / `
+            + `${statistics.totalBaseMembers}`
+        );
+    }
     console.log(`\nResultat har sparats till: ${outputCsvPath}`);
 }
 
+function parseCliArgs(argv) {
+    let inputFile = 'test_scouter.csv';
+    let targetSizeArg;
+    let basePatrolsMode = 'locked';
+    let newPatrolsMode = 'target-size';
+
+    const positional = [];
+
+    for (let i = 0; i < argv.length; i++) {
+        const arg = argv[i];
+        if (arg.startsWith('--base-patrols=')) {
+            basePatrolsMode = arg.split('=')[1];
+        } else if (arg === '--base-patrols') {
+            basePatrolsMode = argv[++i];
+        } else if (arg.startsWith('--new-patrols=')) {
+            newPatrolsMode = arg.split('=')[1];
+        } else if (arg === '--new-patrols') {
+            newPatrolsMode = argv[++i];
+        } else {
+            positional.push(arg);
+        }
+    }
+
+    if (positional[0]) inputFile = positional[0];
+    if (positional[1]) targetSizeArg = positional[1];
+
+    return {
+        inputFile,
+        targetSizeArg,
+        options: { basePatrolsMode, newPatrolsMode },
+    };
+}
+
 function main() {
-    const args = process.argv.slice(2);
-    const inputFile = args[0] || 'test_scouter.csv';
+    const { inputFile, targetSizeArg, options } = parseCliArgs(process.argv.slice(2));
     let targetSize;
 
     try {
-        targetSize = patrolCore.parseTargetSize(args[1]);
+        targetSize = patrolCore.parseTargetSize(targetSizeArg);
     } catch (error) {
         console.error(`Fel: ${error.message}`);
         process.exitCode = 1;
         return;
     }
 
-    const scouts = patrolCore.parseCsv(fs.readFileSync(inputFile, 'utf-8'));
+    let csvContent;
+    try {
+        csvContent = fs.readFileSync(inputFile, 'utf-8');
+    } catch (error) {
+        console.error(`Fel vid läsning av fil "${inputFile}": ${error.message}`);
+        process.exitCode = 1;
+        return;
+    }
+
+    const scouts = patrolCore.parseCsv(csvContent);
 
     try {
         patrolCore.validateRosterSize(scouts.size, targetSize);
@@ -62,7 +113,15 @@ function main() {
         return;
     }
 
-    const patrols = patrolCore.buildPatrols(scouts, targetSize);
+    let patrols;
+    try {
+        patrols = patrolCore.buildPatrols(scouts, targetSize, options);
+    } catch (error) {
+        console.error(`Fel: ${error.message}`);
+        process.exitCode = 1;
+        return;
+    }
+
     const outputFile = 'patruller_resultat.csv';
     const mermaidFile = 'patruller_resultat.mmd';
     const svgFile = 'patruller_resultat.svg';
