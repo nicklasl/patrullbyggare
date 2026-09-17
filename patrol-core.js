@@ -31,7 +31,7 @@ function parseCsv(content) {
 
         let basePatrol = '';
         let scoutName;
-        let preferences = [];
+        let preferences;
 
         if (isPatrolColumnFormat) {
             basePatrol = parts[0] || '';
@@ -121,15 +121,6 @@ function getPatrolSizesForCount(scoutCount, patrolCount) {
         { length: patrolCount },
         (_, index) => baseSize + (index < largerPatrolCount ? 1 : 0)
     );
-}
-
-function createPatrolsFromOrder(scouts, patrolSizes) {
-    let start = 0;
-    return patrolSizes.map(size => {
-        const patrol = scouts.slice(start, start + size);
-        start += size;
-        return patrol;
-    });
 }
 
 function scorePatrols(patrols, scouts, basePatrols) {
