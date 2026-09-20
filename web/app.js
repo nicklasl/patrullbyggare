@@ -399,7 +399,7 @@ if (feedbackForm) {
                     feedbackStatus.classList.add('feedback-status--error');
                 }
             }
-        } catch (error) {
+        } catch {
             if (feedbackStatus) {
                 feedbackStatus.textContent = 'Kunde inte skicka. Kontrollera din anslutning.';
                 feedbackStatus.classList.add('feedback-status--error');

@@ -12,7 +12,7 @@ assert.match(html, /data-tab="upload"/);
 assert.match(html, /data-tab="paste"/);
 assert.match(html, /type="file" accept="\.csv,text\/csv"/);
 assert.match(html, /<textarea[\s\S]+id="csv-text"/);
-assert.match(html, /connect-src 'none'/);
+assert.match(html, /connect-src https:\/\/api\.web3forms\.com/);
 assert.match(html, /Ingen scoutdata skickas eller sparas/);
 assert.match(html, /Scouterna skriver varsin lapp/);
 assert.match(html, /<details class="panel workflow-guide">/);
@@ -34,7 +34,7 @@ assert.match(app, /PatrullbyggareCsvLint/);
 assert.match(app, /createResultCsv/);
 assert.match(app, /createSvgGraph/);
 assert.match(app, /createMermaidGraph/);
-assert.doesNotMatch(app, /\bfetch\s*\(/);
+assert.match(app, /api\.web3forms\.com\/submit/);
 assert.doesNotMatch(app, /XMLHttpRequest/);
 
 function createElement(properties) {
