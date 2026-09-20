@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
         http-equiv="Content-Security-Policy"
-        content="default-src 'self'; connect-src 'none'; img-src 'self' blob:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+        content="default-src 'self'; connect-src https://api.web3forms.com; img-src 'self' blob:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
     >
     <title>Patrullbyggaren</title>
     <meta
@@ -269,8 +269,43 @@ Räven,Sam,Alex
         <p><small>Filen kan även skrivas utan rubrikrad om inga befintliga patruller används: <code>Alex,Sam,Kim</code></small></p>
     </dialog>
 
-    <footer>
-        Patrullbyggaren körs helt lokalt - som en lägereld utan rök.
+    <footer class="footer">
+        <div class="footer__bar">
+            <span>Patrullbyggaren körs helt lokalt – som en lägereld utan rök.</span>
+            <button id="toggle-feedback" class="format-link" type="button" aria-expanded="false" aria-controls="feedback-container">Lämna feedback</button>
+        </div>
+
+        <div id="feedback-container" class="feedback-container" hidden>
+            <form id="feedback-form" class="feedback-form">
+                <input type="hidden" name="access_key" value="__WEB3FORMS_ACCESS_KEY__">
+                <input type="checkbox" name="botcheck" class="visually-hidden" style="display: none;" tabindex="-1" autocomplete="off">
+                <input type="hidden" name="subject" value="Ny feedback från Patrullbyggaren">
+
+                <div class="feedback-field">
+                    <label for="feedback-name">Namn <span class="required-star">*</span></label>
+                    <input type="text" id="feedback-name" name="name" required placeholder="Ditt namn">
+                </div>
+
+                <div class="feedback-field">
+                    <label for="feedback-email">E-postadress <small>(frivilligt, om du vill ha svar)</small></label>
+                    <input type="email" id="feedback-email" name="email" placeholder="din.epost@exempel.se">
+                </div>
+
+                <div class="feedback-field">
+                    <label for="feedback-message">Meddelande <span class="required-star">*</span></label>
+                    <textarea id="feedback-message" name="message" required rows="4" placeholder="Skriv dina synpunkter eller förslag här..."></textarea>
+                </div>
+
+                <p class="feedback-disclaimer">
+                    <small>Tänk på att inte skicka med känsliga personuppgifter eller scoutlistor.</small>
+                </p>
+
+                <div class="feedback-actions">
+                    <button type="submit" id="feedback-submit" class="secondary-button">Skicka feedback</button>
+                    <span id="feedback-status" class="feedback-status" aria-live="polite"></span>
+                </div>
+            </form>
+        </div>
     </footer>
 </body>
 </html>
