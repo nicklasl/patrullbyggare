@@ -343,3 +343,70 @@ document.querySelectorAll('[data-download]').forEach(button => {
 });
 
 updateDynamicTargetText();
+
+const toggleFeedback = document.querySelector('#toggle-feedback');
+const feedbackContainer = document.querySelector('#feedback-container');
+const feedbackForm = document.querySelector('#feedback-form');
+const feedbackSubmit = document.querySelector('#feedback-submit');
+const feedbackStatus = document.querySelector('#feedback-status');
+
+if (toggleFeedback && feedbackContainer) {
+    toggleFeedback.addEventListener('click', () => {
+        const isHidden = feedbackContainer.hidden;
+        feedbackContainer.hidden = !isHidden;
+        toggleFeedback.setAttribute('aria-expanded', String(isHidden));
+        if (isHidden) {
+            const firstInput = feedbackContainer.querySelector('input[type="text"]');
+            if (firstInput) firstInput.focus();
+        }
+    });
+}
+
+if (feedbackForm) {
+    feedbackForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (feedbackSubmit) feedbackSubmit.disabled = true;
+        if (feedbackStatus) {
+            feedbackStatus.textContent = 'Skickar...';
+            feedbackStatus.className = 'feedback-status';
+        }
+
+        const formData = new FormData(feedbackForm);
+        const object = Object.fromEntries(formData);
+        const json = JSON.stringify(object);
+
+        try {
+            const response = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
+            });
+
+            const result = await response.json();
+
+            if (response.status === 200) {
+                if (feedbackStatus) {
+                    feedbackStatus.textContent = 'Tack för din feedback!';
+                    feedbackStatus.classList.add('feedback-status--success');
+                }
+                feedbackForm.reset();
+            } else {
+                if (feedbackStatus) {
+                    feedbackStatus.textContent = result.message || 'Något gick fel. Försök igen.';
+                    feedbackStatus.classList.add('feedback-status--error');
+                }
+            }
+        } catch (error) {
+            if (feedbackStatus) {
+                feedbackStatus.textContent = 'Kunde inte skicka. Kontrollera din anslutning.';
+                feedbackStatus.classList.add('feedback-status--error');
+            }
+        } finally {
+            if (feedbackSubmit) feedbackSubmit.disabled = false;
+        }
+    });
+}
+
